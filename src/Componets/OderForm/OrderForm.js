@@ -13,7 +13,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { increment } from "../../store/slices/counterSlice";
 import { nextStep } from "../../store/formSlice";
 import Package from "./Package";
-
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
 const OrderForm = () => {
   const [user] = useAuthState(auth);
   const [destinationCountry, setDestinationCountry] = useState(null);
@@ -26,6 +27,7 @@ const OrderForm = () => {
   const handleOriginChange = (selectedCountry) => {
     console.log("Selected Country:", selectedCountry);
     setOriginCountry(selectedCountry);
+    console.log(originCountry);
     setSenderFormData((prevData) => ({
       ...prevData,
       country: selectedCountry.value,
@@ -98,21 +100,33 @@ const OrderForm = () => {
       console.error("Error fetching addresses:", error);
     }
   };
+  console.log(senderFormData);
   useEffect(() => {
+    console.log("country.json");
     const fetchCountries = async () => {
       try {
-        const response = await fetch("https://restcountries.com/v3.1/all");
+        const response = await fetch("/country.json");
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch JSON data");
+        }
+        console.log(response);
+        // Parse the JSON data
         const data = await response.json();
+        console.log(data);
+        // Map countries and convert names to values
         const countryOptions = data.map((country) => ({
-          value: country.alpha2Code || country.name.common,
-          label: country.name.common,
-          flag: country.flags.svg,
-          zipCodeFormat: country.address ? country.address.postalCode : null,
+          value: country.code,
+          label: country.name,
+          flag: country.emoji,
         }));
+
         countryOptions.sort((a, b) => a.label.localeCompare(b.label));
         setCountries(countryOptions);
+
+        // Set origin country and default destination country
         const usaCountry = countryOptions.find(
-          (country) => country.label === "United States"
+          (country) => country.value === "US"
         );
         setOriginCountry(usaCountry);
         const defaultDestinationCountry = countryOptions.find(
@@ -123,6 +137,8 @@ const OrderForm = () => {
         console.error("Error fetching countries:", error);
       }
     };
+
+    // Add the mapping function
 
     defaultAddress();
     fetchCountries();
@@ -135,16 +151,19 @@ const OrderForm = () => {
       setSenderFormData({
         ...senderFormData,
         [name]: value,
+        phone: phone,
       });
     } else if (section === "recipient") {
       setRecipientFormData({
         ...recipientFormData,
         [name]: value,
+        phone: phone,
       });
     }
   };
 
   const [nickname, setNickname] = useState("");
+  const [phone, setPhone] = useState();
 
   const handleSaveAddress = async () => {
     const userNickname = prompt("Please enter a nickname for this address:");
@@ -360,7 +379,7 @@ const OrderForm = () => {
   const handleClosePopupr = () => {
     setShowPopupr(false);
   };
-
+  console.log(senderFormData);
   return (
     <>
       <form onSubmit={handleSubmit}>
@@ -418,13 +437,9 @@ const OrderForm = () => {
                 // isDisabled
                 placeholder="Select country"
                 formatOptionLabel={({ label, flag }) => (
-                  <div className="d-flex align-items-center ">
-                    <img
-                      src={flag}
-                      alt={label}
-                      className="me-2"
-                      style={{ width: "1.5em", height: "1.5em" }}
-                    />
+                  <div className="d-flex align-items-center gap-3 ">
+                    <div> {flag}</div>
+
                     {label}
                   </div>
                 )}
@@ -485,13 +500,19 @@ const OrderForm = () => {
 
                 <div className="w-100 ps-2">
                   <label className="py-1">Phone*</label>
-                  <input
+                  <PhoneInput
+                    country={originCountry.value.toLowerCase()}
+                    value={phone}
+                    // className="form-input bglight"
+                    onChange={(phone) => setPhone(phone)}
+                  />
+                  {/* <input
                     type="text"
                     name="phone"
                     className="form-input bglight"
                     value={senderFormData.phone}
                     onChange={(e) => handleInputChange(e, "sender")}
-                  />
+                  /> */}
                 </div>
               </div>
 
@@ -579,19 +600,15 @@ const OrderForm = () => {
               </div>
               <label className="py-1">Country*</label>
               <Select
-                value={originCountry && destinationCountry}
+                value={destinationCountry}
                 onChange={handleDestinationChange}
                 options={countries}
                 isSearchable
                 placeholder="Select country"
                 formatOptionLabel={({ label, flag }) => (
-                  <div className="d-flex align-items-center">
-                    <img
-                      src={flag}
-                      alt={label}
-                      className="me-2"
-                      style={{ width: "1.5em", height: "1.5em" }}
-                    />
+                  <div className="d-flex align-items-center gap-3 ">
+                    <div> {flag}</div>
+
                     {label}
                   </div>
                 )}
@@ -654,14 +671,20 @@ const OrderForm = () => {
                 </div>
                 <div className="w-100 ps-2">
                   <label className="py-1">Phone*</label>
-                  <input
+                  <PhoneInput
+                    country={destinationCountry.value.toLowerCase()}
+                    value={phone}
+                    // className="form-input bglight"
+                    onChange={(phone) => setPhone(phone)}
+                  />
+                  {/* <input
                     type="text"
                     name="phone"
                     required
                     className="form-input bglight"
                     value={recipientFormData.phone}
                     onChange={(e) => handleInputChange(e, "recipient")}
-                  />
+                  /> */}
                 </div>
               </div>
 

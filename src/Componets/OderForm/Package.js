@@ -7,7 +7,7 @@ const Package = () => {
         <thead>
           <tr>
             <th
-              className="pb-3 pl-3 fw-bold cap text-uppercase text-secondary fs-7 "
+              className="pb-3 pl-3 fw-bold cap text-uppercase text-secondary  fs-7 "
               style={{ width: "12rem" }}
             >
               Number of Package
