@@ -1,50 +1,130 @@
-import React from "react";
+import { useState } from "react";
 import Table from "react-bootstrap/Table";
+import { MdDeleteForever } from "react-icons/md";
+import { MdOutlineAddToPhotos } from "react-icons/md";
+import AddPackage from "./AddPackage";
+import "./package.css";
+import Add2ndPackage from "./Add2ndPackage";
 const Package = () => {
+  const [packageon, setPackageon] = useState(true);
+  const [pac, setPac] = useState(true);
   return (
-    <div>
-      <Table striped bordered hover>
+    <>
+      <Table striped bordered hover className="tableHead">
         <thead>
           <tr>
             <th
-              className="pb-3 pl-3 fw-bold cap text-uppercase text-secondary  fs-7 "
-              style={{ width: "12rem" }}
+              className="pb-3 pl-3 fw-bold cap text-uppercase text-secondary fs-7 "
+              style={{ width: "40px" }}
             >
-              Number of Package
+              Package QTY
             </th>
-            <th>
-              Weight per package <br></br> Max. weight 997.9 kg{" "}
+            <th colSpan={3}>WEIGHT PER PACKAGE</th>
+            <th colSpan={4} className="text-center">
+              DIMENSIONS <br></br> L × W × H{" "}
             </th>
-            <th colSpan={3}>
-              Dimensions per package <br></br> L × W × H (Optional){" "}
-            </th>
+            <th>Delete</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>1</td>
-            <td>Mark</td>
-            <td>Otto</td>
-            <td>Otto</td>
-            <td>Otto</td>
+            <td>
+              <input style={{ width: "50%" }} />
+            </td>
+            <td className="">
+              <input type="number" style={{ width: "100%" }} />
+            </td>
+            <td className="">
+              <select style={{ width: "100%" }}>
+                <option>lb</option>
+                <option>kg</option>
+              </select>
+            </td>
+            <td>
+              <span style={{ width: "100%" }}>oz</span>
+            </td>
+            <td className="">
+              <input type="number" style={{ width: "100%" }} />
+            </td>
+            <td className="">
+              <input type="number" style={{ width: "100%" }} />
+            </td>
+            <td>
+              <input type="number" style={{ width: "100%" }} />
+            </td>
+            <td className=" border-start-1 border-secondary">in</td>
+            <td className="d-flex flex-row justify-content-center">
+              <MdDeleteForever className="w-75 h-75" />
+            </td>
           </tr>
-          <tr>
-            <td>2</td>
-            <td>Jacob</td>
-            <td>Thornton</td>
-            <td>Thornton</td>
-            <td>Thornton</td>
-          </tr>
-          <tr>
-            <td>3</td>
-            <td>Larry the Bird</td>
-            <td>@twitter</td>
-            <td>@twitter</td>
-            <td>@twitter</td>
-          </tr>
+
+          {packageon && <AddPackage />}
+          <br />
+          <MdOutlineAddToPhotos
+            style={{ width: "30px", height: "30px" }}
+            className="d-inline"
+            onClick={() => setPackageon(!packageon)}
+          />
         </tbody>
       </Table>
-    </div>
+
+      <div
+        className="secondForm"
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          flexWrap: "wrap",
+          width: "300px",
+          height: "auto",
+        }}
+      >
+        <h6 style={{ textAlign: "center" }}>Package QTY</h6>
+        <input
+          type="number"
+          style={{ width: "90px", alignContent: "center" }}
+        />
+        <h6 style={{ textAlign: "center" }}>WEIGHT PER PACKAGE</h6>
+        <input
+          type="number"
+          style={{ width: "90px", alignContent: "center" }}
+        />
+        <select style={{ width: "90px", alignContent: "center" }}>
+          <option>lb</option>
+          <option>kg</option>
+        </select>
+        <span style={{ textAlign: "center" }}>OZ</span>
+        <h6 style={{ textAlign: "center" }}>
+          {" "}
+          DIMENSIONS <br></br> L × W × H{" "}
+        </h6>
+        <input
+          type="number"
+          style={{ width: "90px", alignContent: "center" }}
+        />
+        <input
+          type="number"
+          style={{ width: "90px", alignContent: "center" }}
+        />
+        <input
+          type="number"
+          style={{ width: "90px", alignContent: "center" }}
+        />
+        <p style={{ textAlign: "center" }}>IN</p>
+        <h6 style={{ textAlign: "center" }}>Delete</h6>
+        <MdDeleteForever style={{ width: "30px", height: "40px" }} />
+        <hr />
+        {pac && <Add2ndPackage />}
+        <br />
+        <MdOutlineAddToPhotos
+          style={{ width: "30px", height: "30px" }}
+          className="d-inline"
+          onClick={() => setPac(!pac)}
+        />
+        <hr />
+      </div>
+    </>
   );
 };
 
