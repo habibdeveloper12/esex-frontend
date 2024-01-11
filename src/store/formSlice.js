@@ -11,7 +11,7 @@ const formSlice = createSlice({
       {
         packing: "",
         box: {
-          size: "",
+          quantity: "",
           length: "",
           width: "",
           height: "",
@@ -77,7 +77,7 @@ const formSlice = createSlice({
       state.currentStep = 1;
       state.sender = {};
       state.recipient = {};
-      state.package = {};
+      state.packages = {};
       state.addOns = [];
     },
     setCurrent: (state, action) => {

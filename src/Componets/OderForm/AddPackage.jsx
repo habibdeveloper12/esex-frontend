@@ -17,8 +17,7 @@ const AddPackage = () => {
             <td className="d-flex flex-row justify-content-center"><MdDeleteForever 
             className="w-75 h-75"/></td>
           </tr>
-          
-  )
+      )
 }
 
 export default AddPackage

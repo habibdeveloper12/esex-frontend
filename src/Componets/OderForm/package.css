@@ -1,17 +1,3 @@
-
-  
-  /* @media (max-width: 920px) {
-    .tableHead {
-      display: none;
-    }}
-    @media screen and (min-width: 921px) {
-      .secondForm {
-        display: none;
-      }
-    }
-    */
-  
-/* Default styles for both the table and secondForm */
 .tableHead {
   display: block;
 }

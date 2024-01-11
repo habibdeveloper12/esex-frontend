@@ -18,9 +18,9 @@ const Add2ndPackage = () => {
           <input type="number" style={{width:"90px",alignContent:"center"}}/>
           <p style={{textAlign:"center"}}>IN</p>
           <h6 style={{textAlign:"center"}}>Delete</h6>
-          <MdDeleteForever style={{width:"30px",height:"40px"}}/>
+          <MdDeleteForever style={{width:"30px",height:"40px"}}/><hr/>
           
-          </div>
+      </div>
   )
 }
 

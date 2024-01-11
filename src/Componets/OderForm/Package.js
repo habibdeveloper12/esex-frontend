@@ -5,11 +5,15 @@ import { MdOutlineAddToPhotos } from "react-icons/md";
 import AddPackage from './AddPackage'
 import './package.css';
 import Add2ndPackage from "./Add2ndPackage";
+import FedexRates from "./FedexRates";
+
+
 const Package = () => {
-  const [packageon,setPackageon]= useState(true);
-  const [pac,setPac]=useState(true);
+  const [packageon,setPackageon]= useState([]);
+  const [pac,setPac]=useState(null);
+  
   return (
-    <>
+    <div style={{textAlign:"center"}}>
       <Table striped bordered hover className="tableHead">
         <thead>
           <tr>
@@ -78,11 +82,14 @@ const Package = () => {
             )}
           <br/>
          <MdOutlineAddToPhotos style={{width:"30px",height:"30px"}} className="d-inline" onClick={()=>setPac(!pac)}/>
-         <hr/>
       </div>
-    </>
-  );
-};
+         <br/><br/>
+         <button style={{padding:"10px 38px 10px 38px",backgroundColor:"#751aff",borderRadius:"20px",color:"white",fontWeight:"bold",fontSize:"13px",
+         fontFamily:"inherit",marginBottom:"40px",textAlign:"center"}}>CALCULATE SHIPPING RATES</button>
+         <FedexRates/>
+   </div>
+  )
+}
 
 export default Package;
 
