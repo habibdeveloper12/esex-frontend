@@ -14,7 +14,7 @@ const SocialLogin = () => {
         try {
           console.log("response.data");
           const response = await axios.get(
-            `http://localhost:5000/api/v1/user`,
+            `http://localhost:5001/api/v1/user`,
             {
               params: {
                 email: user.email,
@@ -27,7 +27,7 @@ const SocialLogin = () => {
             return;
           } else {
             const registrationResponse = await axios.post(
-              "http://localhost:5000/api/v1/user/register",
+              "http://localhost:5001/api/v1/user/register",
               {
                 email: user.email,
                 password: "123456",
@@ -59,7 +59,7 @@ const SocialLogin = () => {
         try {
           console.log(uid, email, displayName);
           const response = await axios.post(
-            "http://localhost:5000/api/v1/user/register",
+            "http://localhost:5001/api/v1/user/register",
             {
               name: displayName,
               email: email,

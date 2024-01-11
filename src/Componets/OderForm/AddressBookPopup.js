@@ -18,7 +18,7 @@ const AddressBookPopup = ({ onClose }) => {
     try {
       console.log(id);
       await axios.delete(
-        `http://localhost:5000/api/v1/user/addressDelete/${id}`
+        `http://localhost:5001/api/v1/user/addressDelete/${id}`
       );
       await fetchAddresses();
       toast.success("Address deleted successfully", {
@@ -36,7 +36,7 @@ const AddressBookPopup = ({ onClose }) => {
     try {
       // Send a request to set the address as default
       await axios.put(
-        `http://localhost:5000/api/v1/user/setDefaultAddress/${id}`
+        `http://localhost:5001/api/v1/user/setDefaultAddress/${id}`
       );
       setDefaultAddressId(id);
       toast.success("Address set as default successfully", {
@@ -54,7 +54,7 @@ const AddressBookPopup = ({ onClose }) => {
   const fetchAddresses = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:5000/api/v1/user/addressAll?nickname=${searchTerm}&&email=${userEmail}`
+        `http://localhost:5001/api/v1/user/addressAll?nickname=${searchTerm}&&email=${userEmail}`
       );
 
       setAddresses(response.data);
@@ -66,7 +66,7 @@ const AddressBookPopup = ({ onClose }) => {
   const fetchDefaultAddress = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:5000/api/v1/user/peruser?email=${user?.email}`
+        `http://localhost:5001/api/v1/user/peruser?email=${user?.email}`
       );
 
       setDefaultAddressId(response.data.defaultAddress);

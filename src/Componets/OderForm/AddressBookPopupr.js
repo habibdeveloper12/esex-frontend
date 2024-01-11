@@ -15,7 +15,7 @@ const AddressBookPopup = ({ onClose }) => {
     try {
       console.log(id);
       await axios.delete(
-        `http://localhost:5000/api/v1/user/addressrDelete/${id}`
+        `http://localhost:5001/api/v1/user/addressrDelete/${id}`
       );
       await fetchAddresses();
       toast.success("Address deleted successfully", {
@@ -32,7 +32,7 @@ const AddressBookPopup = ({ onClose }) => {
   const fetchAddresses = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:5000/api/v1/user/addressrAll?nickname=${searchTerm}&&email=${user?.email}`
+        `http://localhost:5001/api/v1/user/addressrAll?nickname=${searchTerm}&&email=${user?.email}`
       );
 
       setAddresses(response.data);

@@ -17,7 +17,7 @@ const MyProfile = () => {
       const userEmail = user.email;
       const fetchUserProfile = async () => {
         try {
-          const response = await axios.get(`http://localhost:5000/api/v1/user/singleByEmail/${userEmail}`);
+          const response = await axios.get(`http://localhost:5001/api/v1/user/singleByEmail/${userEmail}`);
           if (response.data.success) {
             setProfile(response.data.user);
           }
