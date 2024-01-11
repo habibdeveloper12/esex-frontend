@@ -24,7 +24,7 @@ const Dashboard = () => {
     const fetchUserInformation = async () => {
       try {
         console.log("Fetching user information...");
-        const response = await axios.get(`http://localhost:5000/api/v1/user`, {
+        const response = await axios.get(`http://localhost:5001/api/v1/user`, {
           params: {
             email: user?.email,
           },

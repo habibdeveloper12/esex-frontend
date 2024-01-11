@@ -4,7 +4,7 @@ import { FaRegAddressBook } from "react-icons/fa";
 import axios from "axios";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useForm } from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
 import auth from "../../firebase.init";
 import { useAuthState } from "react-firebase-hooks/auth";
 import AddressBookPopup from "./AddressBookPopup";
@@ -17,13 +17,26 @@ import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 const OrderForm = () => {
   const [user] = useAuthState(auth);
-  const [destinationCountry, setDestinationCountry] = useState(null);
+ 
   const [countries, setCountries] = useState([]);
   const defaultCountry = { value: "United States", label: "United States" };
+  const [destinationCountry, setDestinationCountry] = useState(defaultCountry);
   const [originCountry, setOriginCountry] = useState(defaultCountry);
   const [showPopup, setShowPopup] = useState(false);
   const [showPopupr, setShowPopupr] = useState(false);
+  const { control, handleSubmit, register} = useForm({
+    defaultValues: {
+      packages: [{ qty: "", weight: "", unit: "", length: "", width: "", height: "" }],
+    },
+  });
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "packages",
+  });
 
+  const onSubmit = (data) => {
+    console.log(data);
+  };
   const handleOriginChange = (selectedCountry) => {
     console.log("Selected Country:", selectedCountry);
     setOriginCountry(selectedCountry);
@@ -66,7 +79,7 @@ const OrderForm = () => {
   });
   const { currentStep } = useSelector((state) => state.form);
   const dispatch = useDispatch();
-  const handleSubmit = (e) => {
+  const handleSubmitForm = (e) => {
     e.preventDefault();
     dispatch(nextStep());
     console.log("df");
@@ -75,7 +88,7 @@ const OrderForm = () => {
   const defaultAddress = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:5000/api/v1/user/default/address?email=${user?.email}`
+        `${process.env.PORT}/api/v1/user/default/address?email=${user?.email}`
       );
 
       const sender = response.data.defaultAddress.sender;
@@ -185,7 +198,7 @@ const OrderForm = () => {
     try {
       // Check if the nickname already exists
       const response = await axios.post(
-        "http://localhost:5000/api/v1/user/check-nickname",
+        "http://localhost:5001/api/v1/user/check-nickname",
         { nickname: userNickname }
       );
 
@@ -240,7 +253,7 @@ const OrderForm = () => {
     console.log(data);
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/v1/user/save-address",
+        "http://localhost:5001/api/v1/user/save-address",
         data
       );
       console.log("Full response:", response);
@@ -286,7 +299,7 @@ const OrderForm = () => {
     try {
       // Check if the nickname already exists
       const response = await axios.post(
-        "http://localhost:5000/api/v1/user/check-nicknamer",
+        "http://localhost:5001/api/v1/user/check-nicknamer",
         { nickname: userNickname }
       );
 
@@ -341,7 +354,7 @@ const OrderForm = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/v1/user/save-addressr",
+        "http://localhost:5001/api/v1/user/save-addressr",
         data
       );
       console.log("Full response:", response);
@@ -379,10 +392,11 @@ const OrderForm = () => {
   const handleClosePopupr = () => {
     setShowPopupr(false);
   };
+
   console.log(senderFormData);
   return (
     <>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmitForm}>
         <div className="bglight">
           <div className="dflex container  bg-white">
             <div className="form-group form-group-mobile mx-2 w-100">
@@ -742,7 +756,9 @@ const OrderForm = () => {
           </button>
         </div>
       </form>
-      {currentStep > 1 && <Package />}
+      {currentStep > 1 && <Package {...{control,handleSubmit,register,fields, append, remove ,onSubmit}}/>}
+       <button> typeSubmit</button>
+   
     </>
   );
 };

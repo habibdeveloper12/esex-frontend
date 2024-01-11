@@ -32,7 +32,7 @@ const WalletBalance = () => {
   const onToken = async (token) => {
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/v1/order/wallet-payment-stripe",
+        "http://localhost:5001/api/v1/order/wallet-payment-stripe",
         {
           token: token.id,
           amount: addAmount * 100,

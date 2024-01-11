@@ -5,12 +5,14 @@ import { MdOutlineAddToPhotos } from "react-icons/md";
 import AddPackage from "./AddPackage";
 import "./package.css";
 import Add2ndPackage from "./Add2ndPackage";
-const Package = () => {
+import { useFieldArray, useForm } from "react-hook-form";
+const Package = ({control,handleSubmit,register,fields, append, remove ,onSubmit}) => {
   const [packageon, setPackageon] = useState(true);
   const [pac, setPac] = useState(true);
+
   return (
     <>
-      <Table striped bordered hover className="tableHead">
+         <Table striped bordered hover className="tableHead">
         <thead>
           <tr>
             <th
@@ -21,54 +23,81 @@ const Package = () => {
             </th>
             <th colSpan={3}>WEIGHT PER PACKAGE</th>
             <th colSpan={4} className="text-center">
-              DIMENSIONS <br></br> L × W × H{" "}
+              DIMENSIONS <br /> L × W × H{" "}
             </th>
             <th>Delete</th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>
-              <input style={{ width: "50%" }} />
-            </td>
-            <td className="">
-              <input type="number" style={{ width: "100%" }} />
-            </td>
-            <td className="">
-              <select style={{ width: "100%" }}>
-                <option>lb</option>
-                <option>kg</option>
-              </select>
-            </td>
-            <td>
-              <span style={{ width: "100%" }}>oz</span>
-            </td>
-            <td className="">
-              <input type="number" style={{ width: "100%" }} />
-            </td>
-            <td className="">
-              <input type="number" style={{ width: "100%" }} />
-            </td>
-            <td>
-              <input type="number" style={{ width: "100%" }} />
-            </td>
-            <td className=" border-start-1 border-secondary">in</td>
-            <td className="d-flex flex-row justify-content-center">
-              <MdDeleteForever className="w-75 h-75" />
-            </td>
-          </tr>
-
-          {packageon && <AddPackage />}
-          <br />
-          <MdOutlineAddToPhotos
-            style={{ width: "30px", height: "30px" }}
-            className="d-inline"
-            onClick={() => setPackageon(!packageon)}
-          />
+          {fields.map((item, index) => (
+            <tr key={item.id}>
+              <td>
+                <input
+                  {...register(`packages.${index}.qty`)}
+                  style={{ width: "50%" }}
+                />
+              </td>
+              <td className="">
+                <input
+                  {...register(`packages.${index}.weight`)}
+                  type="number"
+                  style={{ width: "100%" }}
+                />
+              </td>
+              <td className="">
+                <select
+                  {...register(`packages.${index}.unit`)}
+                  style={{ width: "100%" }}
+                >
+                  <option>lb</option>
+                  <option>kg</option>
+                </select>
+              </td>
+               <td>
+                oz
+              </td> 
+              <td className="">
+                <input
+                  {...register(`packages.${index}.length`)}
+                  type="number"
+                  style={{ width: "100%" }}
+                />
+              </td>
+              <td className="">
+                <input
+                  {...register(`packages.${index}.width`)}
+                  type="number"
+                  style={{ width: "100%" }}
+                />
+              </td>
+              <td>
+                <input
+                  {...register(`packages.${index}.height`)}
+                  type="number"
+                  style={{ width: "100%" }}
+                />
+              </td>
+              <td className=" border-start-1 border-secondary">in</td>
+              <td className="d-flex flex-row justify-content-center">
+                <MdDeleteForever
+                  className="w-75 h-75"
+                  onClick={() => remove(index)}
+                />
+              </td>
+            </tr>
+          ))}
         </tbody>
       </Table>
 
-      <div
+      <MdOutlineAddToPhotos
+        style={{ width: "30px", height: "30px" }}
+        className="d-inline"
+        onClick={() => append({})}
+      />
+
+   
+
+     {/* <div
         className="secondForm"
         style={{
           display: "flex",
@@ -123,7 +152,7 @@ const Package = () => {
           onClick={() => setPac(!pac)}
         />
         <hr />
-      </div>
+      </div>  */}
     </>
   );
 };

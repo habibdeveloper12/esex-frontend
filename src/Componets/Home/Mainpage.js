@@ -39,7 +39,7 @@ const Homepage = () => {
       if (user) {
         try {
           const response = await axios.get(
-            `http://localhost:5000/api/v1/user`,
+            `http://localhost:5001/api/v1/user`,
             {
               params: {
                 email: user.email,
@@ -50,7 +50,7 @@ const Homepage = () => {
           if (!response.data) {
             console.log(response.data);
             const registrationResponse = await axios.post(
-              "http://localhost:5000/api/v1/user/register",
+              "http://localhost:5001/api/v1/user/register",
               {
                 email: user.email,
                 password: "123456",
