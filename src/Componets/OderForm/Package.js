@@ -6,13 +6,22 @@ import AddPackage from "./AddPackage";
 import "./package.css";
 import Add2ndPackage from "./Add2ndPackage";
 import { useFieldArray, useForm } from "react-hook-form";
-const Package = ({control,handleSubmit,register,fields, append, remove ,onSubmit}) => {
+const Package = ({
+  control,
+  errors,
+  handleSubmit,
+  register,
+  fields,
+  append,
+  remove,
+  onSubmit,
+}) => {
   const [packageon, setPackageon] = useState(true);
   const [pac, setPac] = useState(true);
 
   return (
     <>
-         <Table striped bordered hover className="tableHead">
+      <Table striped bordered hover className="tableHead">
         <thead>
           <tr>
             <th
@@ -36,6 +45,9 @@ const Package = ({control,handleSubmit,register,fields, append, remove ,onSubmit
                   {...register(`packages.${index}.qty`)}
                   style={{ width: "50%" }}
                 />
+                {errors.packages?.[index]?.qty && (
+                  <span className="error-text">Qty is required</span>
+                )}
               </td>
               <td className="">
                 <input
@@ -53,9 +65,7 @@ const Package = ({control,handleSubmit,register,fields, append, remove ,onSubmit
                   <option>kg</option>
                 </select>
               </td>
-               <td>
-                oz
-              </td> 
+              <td>oz</td>
               <td className="">
                 <input
                   {...register(`packages.${index}.length`)}
@@ -95,9 +105,7 @@ const Package = ({control,handleSubmit,register,fields, append, remove ,onSubmit
         onClick={() => append({})}
       />
 
-   
-
-     {/* <div
+      {/* <div
         className="secondForm"
         style={{
           display: "flex",

@@ -7,13 +7,12 @@
 }
 
 /* Media query to hide the table when the screen size is 920px or below */
-@media screen and (max-width: 920px) {
+/* @media screen and (max-width: 920px) {
   .tableHead {
     display: none;
   }
 
   /* Media query to show the secondForm when the screen size is 920px or below */
-  .secondForm {
+/* .secondForm {
     display: flex;
-  }
-}
+  } */

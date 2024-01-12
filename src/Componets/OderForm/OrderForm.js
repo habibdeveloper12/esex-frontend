@@ -17,16 +17,23 @@ import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 const OrderForm = () => {
   const [user] = useAuthState(auth);
- 
+
   const [countries, setCountries] = useState([]);
   const defaultCountry = { value: "United States", label: "United States" };
   const [destinationCountry, setDestinationCountry] = useState(defaultCountry);
   const [originCountry, setOriginCountry] = useState(defaultCountry);
   const [showPopup, setShowPopup] = useState(false);
   const [showPopupr, setShowPopupr] = useState(false);
-  const { control, handleSubmit, register} = useForm({
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+    register,
+  } = useForm({
     defaultValues: {
-      packages: [{ qty: "", weight: "", unit: "", length: "", width: "", height: "" }],
+      packages: [
+        { qty: "", weight: "", unit: "", length: "", width: "", height: "" },
+      ],
     },
   });
   const { fields, append, remove } = useFieldArray({
@@ -88,7 +95,7 @@ const OrderForm = () => {
   const defaultAddress = async () => {
     try {
       const response = await axios.get(
-        `${process.env.PORT}/api/v1/user/default/address?email=${user?.email}`
+        `http://localhost:5001/api/v1/user/default/address?email=${user?.email}`
       );
 
       const sender = response.data.defaultAddress.sender;
@@ -756,9 +763,21 @@ const OrderForm = () => {
           </button>
         </div>
       </form>
-      {currentStep > 1 && <Package {...{control,handleSubmit,register,fields, append, remove ,onSubmit}}/>}
-       <button> typeSubmit</button>
-   
+      {currentStep > 1 && (
+        <Package
+          {...{
+            errors,
+            control,
+            handleSubmit,
+            register,
+            fields,
+            append,
+            remove,
+            onSubmit,
+          }}
+        />
+      )}
+      <button> typeSubmit</button>
     </>
   );
 };
