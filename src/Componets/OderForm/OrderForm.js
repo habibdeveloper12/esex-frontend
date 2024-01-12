@@ -15,9 +15,10 @@ import { nextStep } from "../../store/formSlice";
 import Package from "./Package";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
+import FedexRates from "./FedexRates";
 const OrderForm = () => {
   const [user] = useAuthState(auth);
- 
+ const [rate,setRate]=useState(false)
   const [countries, setCountries] = useState([]);
   const defaultCountry = { value: "United States", label: "United States" };
   const [destinationCountry, setDestinationCountry] = useState(defaultCountry);
@@ -26,7 +27,7 @@ const OrderForm = () => {
   const [showPopupr, setShowPopupr] = useState(false);
   const { control, handleSubmit, register} = useForm({
     defaultValues: {
-      packages: [{ qty: "", weight: "", unit: "", length: "", width: "", height: "" }],
+      packages: [{ qty: "", weight: "", unit: "lb", length: "", width: "", height: "" }],
     },
   });
   const { fields, append, remove } = useFieldArray({
@@ -34,9 +35,29 @@ const OrderForm = () => {
     name: "packages",
   });
 
-  const onSubmit = (data) => {
-  
-    console.log(data);
+  const onSubmit = async(data) => {
+    const obj={
+      sender:senderFormData,
+      recipient:recipientFormData,
+      parcel: data.packages,
+    }
+    const response = await axios.post('http://localhost:5001/api/v1/order/create', {
+      shipment: {
+        from_address: senderFormData,
+        to_address: recipientFormData,
+        parcels: data.packages,
+      }
+    }, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    console.log(response)
+
+    // Extract rates from the response
+    const rates = response.data.rates;
+   setRate(true)
+    console.log(obj);
   };
   const handleOriginChange = (selectedCountry) => {
     console.log("Selected Country:", selectedCountry);
@@ -757,7 +778,14 @@ const OrderForm = () => {
         </div>
       </>
       {currentStep > 1 && <Package {...{control,handleSubmit,register,fields, append, remove ,onSubmit}}/>}
-       <button type="submit"> Payment</button>
+   <div className="d-flex justify-content-center align-items-center" style={{padding:"20px"}}>
+   <button type="submit" className=" btn bg-primary text-white rounded-pill"> Calculate Shipping Rates</button>
+   </div>
+      {
+        rate && <FedexRates/>
+      }
+      
+     
    
     </form>
   );

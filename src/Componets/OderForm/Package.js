@@ -33,12 +33,14 @@ const Package = ({control,handleSubmit,register,fields, append, remove ,onSubmit
             <tr key={item.id}>
               <td>
                 <input
+                required
                   {...register(`packages.${index}.qty`)}
                   style={{ width: "50%" }}
                 />
               </td>
               <td className="">
                 <input
+                required
                   {...register(`packages.${index}.weight`)}
                   type="number"
                   style={{ width: "100%" }}
@@ -49,7 +51,7 @@ const Package = ({control,handleSubmit,register,fields, append, remove ,onSubmit
                   {...register(`packages.${index}.unit`)}
                   style={{ width: "100%" }}
                 >
-                  <option>lb</option>
+                  <option defaultChecked>lb</option>
                   <option>kg</option>
                 </select>
               </td>
@@ -58,6 +60,7 @@ const Package = ({control,handleSubmit,register,fields, append, remove ,onSubmit
               </td> 
               <td className="">
                 <input
+                required
                   {...register(`packages.${index}.length`)}
                   type="number"
                   style={{ width: "100%" }}
@@ -67,11 +70,13 @@ const Package = ({control,handleSubmit,register,fields, append, remove ,onSubmit
                 <input
                   {...register(`packages.${index}.width`)}
                   type="number"
+                  required
                   style={{ width: "100%" }}
                 />
               </td>
               <td>
                 <input
+                required
                   {...register(`packages.${index}.height`)}
                   type="number"
                   style={{ width: "100%" }}
@@ -79,21 +84,28 @@ const Package = ({control,handleSubmit,register,fields, append, remove ,onSubmit
               </td>
               <td className=" border-start-1 border-secondary">in</td>
               <td className="d-flex flex-row justify-content-center">
-                <MdDeleteForever
+                {
+                  fields.length==1 ? <> <MdDeleteForever
+                  className="w-75 h-75"
+                /> </>:<>   <MdDeleteForever
                   className="w-75 h-75"
                   onClick={() => remove(index)}
-                />
+                /></>
+                }
+             
               </td>
             </tr>
           ))}
         </tbody>
       </Table>
 
-      <MdOutlineAddToPhotos
-        style={{ width: "30px", height: "30px" }}
-        className="d-inline"
-        onClick={() => append({})}
-      />
+    
+        <MdOutlineAddToPhotos
+          style={{ width: "30px", height: "30px" }}
+          className="d-inline"
+          onClick={() => append({})}
+        />
+    
 
    
 
