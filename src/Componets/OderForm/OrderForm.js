@@ -26,6 +26,7 @@ const OrderForm = () => {
   const [showPopupr, setShowPopupr] = useState(false);
   const {
     control,
+    getValues,
     handleSubmit,
     formState: { errors },
     register,
@@ -36,12 +37,14 @@ const OrderForm = () => {
       ],
     },
   });
+  console.log(getValues);
   const { fields, append, remove } = useFieldArray({
     control,
     name: "packages",
   });
 
   const onSubmit = (data) => {
+    console.log("df");
     console.log(data);
   };
   const handleOriginChange = (selectedCountry) => {
@@ -166,7 +169,6 @@ const OrderForm = () => {
 
   const handleInputChange = (e, section) => {
     const { name, value } = e.target;
-
     if (section === "sender") {
       setSenderFormData({
         ...senderFormData,
@@ -177,14 +179,14 @@ const OrderForm = () => {
       setRecipientFormData({
         ...recipientFormData,
         [name]: value,
-        phone: phone,
+        phone: rphone,
       });
     }
   };
 
   const [nickname, setNickname] = useState("");
   const [phone, setPhone] = useState();
-
+  const [rphone, setRPhone] = useState();
   const handleSaveAddress = async () => {
     const userNickname = prompt("Please enter a nickname for this address:");
     if (!userNickname) {
@@ -402,8 +404,8 @@ const OrderForm = () => {
 
   console.log(senderFormData);
   return (
-    <>
-      <form onSubmit={handleSubmitForm}>
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <>
         <div className="bglight">
           <div className="dflex container  bg-white">
             <div className="form-group form-group-mobile mx-2 w-100">
@@ -694,9 +696,9 @@ const OrderForm = () => {
                   <label className="py-1">Phone*</label>
                   <PhoneInput
                     country={destinationCountry.value.toLowerCase()}
-                    value={phone}
+                    value={rphone}
                     // className="form-input bglight"
-                    onChange={(phone) => setPhone(phone)}
+                    onChange={(e) => setRPhone(e)}
                   />
                   {/* <input
                     type="text"
@@ -758,15 +760,14 @@ const OrderForm = () => {
         </div>
 
         <div className="d-flex justify-content-end mb-5">
-          <button className="btn btn-success px-5" type="submit">
+          <button className="btn btn-success px-5" onClick={handleSubmitForm}>
             Save & Next
           </button>
         </div>
-      </form>
+      </>
       {currentStep > 1 && (
         <Package
           {...{
-            errors,
             control,
             handleSubmit,
             register,
@@ -777,8 +778,8 @@ const OrderForm = () => {
           }}
         />
       )}
-      <button> typeSubmit</button>
-    </>
+      <button type="submit"> Payment</button>
+    </form>
   );
 };
 

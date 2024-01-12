@@ -45,9 +45,9 @@ const Package = ({
                   {...register(`packages.${index}.qty`)}
                   style={{ width: "50%" }}
                 />
-                {errors.packages?.[index]?.qty && (
+                {/* {errors.packages?.[index]?.qty && (
                   <span className="error-text">Qty is required</span>
-                )}
+                )} */}
               </td>
               <td className="">
                 <input
