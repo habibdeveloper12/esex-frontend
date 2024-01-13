@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Card, Col, Row } from "react-bootstrap"; // Import Bootstrap card components
-import { FaShoppingCart, FaTruck, FaCheck, FaExclamationCircle } from "react-icons/fa"; // Import icons
+import {
+  FaShoppingCart,
+  FaTruck,
+  FaCheck,
+  FaExclamationCircle,
+} from "react-icons/fa"; // Import icons
 
 const DashboardDetail = () => {
   const [savedOrders, setSavedOrders] = useState([]);
@@ -17,9 +22,15 @@ const DashboardDetail = () => {
         const orders = response.data;
 
         // Filter orders based on tracking status
-        const saved = orders.filter((order) => order.trackingStatus === "saved");
-        const delivered = orders.filter((order) => order.trackingStatus === "delivered");
-        const inTransit = orders.filter((order) => order.trackingStatus === "in-transit");
+        const saved = orders.filter(
+          (order) => order.trackingStatus === "saved"
+        );
+        const delivered = orders.filter(
+          (order) => order.trackingStatus === "delivered"
+        );
+        const inTransit = orders.filter(
+          (order) => order.trackingStatus === "in-transit"
+        );
         const alert = orders.filter((order) =>
           ["delay", "pending", "exception"].includes(order.trackingStatus)
         );
@@ -42,17 +53,17 @@ const DashboardDetail = () => {
       <Card className={`bg-${color} text-white`}>
         <Card.Body>
           <div className="d-flex justify-content-between align-items-center">
-            <div >
+            <div>
               <h6 className="m-b-20">{title}</h6>
               <div className="d-flex">
                 <div className="text-right w-100">
                   <h2>{icon}</h2>
-                  </div>
-                  <div className="ms-auto w-100">
-                    <h2 style={{ paddingLeft: '170px' }}>{count}</h2>
-                     </div>
-                     </div>
-          <p className="m-b-0">{`All ${title}`}</p>
+                </div>
+                <div className="ms-auto w-100">
+                  <h2 style={{ paddingLeft: "170px" }}>{count}</h2>
+                </div>
+              </div>
+              <p className="m-b-0">{`All ${title}`}</p>
             </div>
           </div>
         </Card.Body>
@@ -66,11 +77,31 @@ const DashboardDetail = () => {
         <div className="pt-3 pb-2 mb-3">
           <h1>Dashboard</h1>
         </div>
-        <Row >
-          <OrderCard title="Total Orders" count={savedOrders.length} icon={<FaShoppingCart />} color="primary" />
-          <OrderCard title="Delivered Orders" count={deliveredOrders.length} icon={<FaCheck />} color="success" />
-          <OrderCard title="InTransit Orders" count={inTransitOrders.length} icon={<FaTruck />} color="info" />
-          <OrderCard title="Alert Orders" count={alertOrders.length} icon={<FaExclamationCircle />} color="warning" />
+        <Row>
+          <OrderCard
+            title="Total Orders"
+            count={savedOrders.length}
+            icon={<FaShoppingCart />}
+            color="primary"
+          />
+          <OrderCard
+            title="Delivered Orders"
+            count={deliveredOrders.length}
+            icon={<FaCheck />}
+            color="success"
+          />
+          <OrderCard
+            title="InTransit Orders"
+            count={inTransitOrders.length}
+            icon={<FaTruck />}
+            color="info"
+          />
+          <OrderCard
+            title="Alert Orders"
+            count={alertOrders.length}
+            icon={<FaExclamationCircle />}
+            color="warning"
+          />
         </Row>
       </main>
     </div>

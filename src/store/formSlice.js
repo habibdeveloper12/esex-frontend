@@ -17,14 +17,12 @@ const formSlice = createSlice({
           height: "",
           weight: "",
         },
-        items: [
-          { quantity: 0, description: "", category: "", value: 0, weight: 0 },
-        ],
-        items_total_value: 0,
       },
     ],
 
     addons: {
+      items: [{ quantity: 0, description: "", value: 0, weight: 0 }],
+      items_total_value: 0,
       insurance: { insured: false, value: 0 },
       taxes_and_duties: { payer: "receiver", value: 0 },
     },
@@ -69,6 +67,9 @@ const formSlice = createSlice({
     },
     addPackage: (state, action) => {
       state.packages.push(action.payload);
+    },
+    setCustomAddons: (state, action) => {
+      state.items.push(action.payload);
     },
     setAddOns: (state, action) => {
       state.addOns = action.payload;

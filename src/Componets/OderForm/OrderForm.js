@@ -15,6 +15,8 @@ import { nextStep } from "../../store/formSlice";
 import Package from "./Package";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
+import FedexRates from "./FedexRates";
+import Loading from "../Loading/Loading";
 const OrderForm = () => {
   const [user] = useAuthState(auth);
 
@@ -23,7 +25,10 @@ const OrderForm = () => {
   const [destinationCountry, setDestinationCountry] = useState(defaultCountry);
   const [originCountry, setOriginCountry] = useState(defaultCountry);
   const [showPopup, setShowPopup] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [showPopupr, setShowPopupr] = useState(false);
+  const [rate, setRate] = useState([]);
+  const [selectedRate, setSelectedRate] = useState({});
   const {
     control,
     getValues,
@@ -33,7 +38,7 @@ const OrderForm = () => {
   } = useForm({
     defaultValues: {
       packages: [
-        { qty: "", weight: "", unit: "", length: "", width: "", height: "" },
+        { qty: "", weight: "", unit: "lb", length: "", width: "", height: "" },
       ],
     },
   });
@@ -43,10 +48,51 @@ const OrderForm = () => {
     name: "packages",
   });
 
-  const onSubmit = (data) => {
-    console.log("df");
-    console.log(data);
+  const onSubmit = async (data) => {
+    const obj = {
+      sender: senderFormData,
+      recipient: recipientFormData,
+      parcel: data.packages,
+    };
+    console.log("sdsd", selectedRate);
+    try {
+      // setLoading(true);
+      const response = await axios.post(
+        `http://localhost:5001/api/v1/order/create-rate`,
+        {
+          ...obj,
+        }
+      );
+      console.log("Full response:", response);
+      setRate(response.data.rates);
+      setLoading(false);
+      if (
+        response.data.success !== undefined &&
+        response.data.success === false
+      ) {
+        setLoading(false);
+        toast.error(`Error: ${response.data.message}`, {
+          position: toast.POSITION.TOP_CENTER,
+        });
+      } else {
+        setLoading(false);
+        // dispatch(nextStep());
+        console.log("df");
+        // toast.success("Here is Rate!", {
+        //   position: toast.POSITION.TOP_CENTER,
+        // });
+      }
+    } catch (error) {
+      setLoading(false);
+      console.error("Error saving address:", error.message);
+      toast.error("An error occurred while saving the address.", {
+        position: toast.POSITION.TOP_CENTER,
+      });
+    }
+
+    console.log(obj);
   };
+
   const handleOriginChange = (selectedCountry) => {
     console.log("Selected Country:", selectedCountry);
     setOriginCountry(selectedCountry);
@@ -89,10 +135,40 @@ const OrderForm = () => {
   });
   const { currentStep } = useSelector((state) => state.form);
   const dispatch = useDispatch();
-  const handleSubmitForm = (e) => {
+  const handleSubmitForm = async (e) => {
     e.preventDefault();
-    dispatch(nextStep());
-    console.log("df");
+
+    try {
+      const response = await axios.post(
+        `http://localhost:5001/api/v1/order/create-order`,
+        {
+          from_address: senderFormData,
+          to_address: recipientFormData,
+          email: user?.email,
+        }
+      );
+      console.log("Full response:", response);
+
+      if (
+        response.data.success !== undefined &&
+        response.data.success === false
+      ) {
+        toast.error(`Error: ${response.data.message}`, {
+          position: toast.POSITION.TOP_CENTER,
+        });
+      } else {
+        dispatch(nextStep());
+        console.log("df");
+        toast.success("Order saved successfully!", {
+          position: toast.POSITION.TOP_CENTER,
+        });
+      }
+    } catch (error) {
+      console.error("Error saving address:", error.message);
+      toast.error("An error occurred while saving the address.", {
+        position: toast.POSITION.TOP_CENTER,
+      });
+    }
   };
   console.log(currentStep);
   const defaultAddress = async () => {
@@ -401,7 +477,9 @@ const OrderForm = () => {
   const handleClosePopupr = () => {
     setShowPopupr(false);
   };
-
+  if (loading) {
+    return <Loading />;
+  }
   console.log(senderFormData);
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -778,7 +856,21 @@ const OrderForm = () => {
           }}
         />
       )}
-      <button type="submit"> Payment</button>
+      <div
+        className="d-flex justify-content-center align-items-center"
+        style={{ padding: "20px" }}
+      >
+        <button
+          type="submit"
+          className=" btn bg-primary text-white rounded-pill"
+        >
+          {" "}
+          Calculate Shipping Rates
+        </button>
+      </div>
+      {rate.length > 0 && (
+        <FedexRates {...{ rate, selectedRate, setSelectedRate }} />
+      )}
     </form>
   );
 };
