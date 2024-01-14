@@ -2,17 +2,19 @@ import { useState } from "react";
 import Table from "react-bootstrap/Table";
 import { MdDeleteForever } from "react-icons/md";
 import { MdOutlineAddToPhotos } from "react-icons/md";
-import AddPackage from "./AddPackage";
-import "./package.css";
+import AddPackage from './AddPackage'
+import './package.css';
 import Add2ndPackage from "./Add2ndPackage";
-import { useFieldArray, useForm } from "react-hook-form";
-const Package = ({control,handleSubmit,register,fields, append, remove ,onSubmit}) => {
-  const [packageon, setPackageon] = useState(true);
-  const [pac, setPac] = useState(true);
+import FedexRates from "./FedexRates";
 
+
+const Package = () => {
+  const [packageon,setPackageon]= useState([]);
+  const [pac,setPac]=useState(null);
+  
   return (
-    <>
-         <Table striped bordered hover className="tableHead">
+    <div style={{height:"auto"}} className="packageJsMain">
+      <Table striped bordered hover className="tableHead">
         <thead>
           <tr>
             <th
@@ -21,140 +23,74 @@ const Package = ({control,handleSubmit,register,fields, append, remove ,onSubmit
             >
               Package QTY
             </th>
-            <th colSpan={3}>WEIGHT PER PACKAGE</th>
-            <th colSpan={4} className="text-center">
-              DIMENSIONS <br /> L × W × H{" "}
+            <th colSpan={3}>
+              WEIGHT PER PACKAGE
             </th>
-            <th>Delete</th>
+            <th colSpan={4} className="text-center">
+              DIMENSIONS <br></br> L × W × H {" "}
+            </th>
+            <th>
+              Delete
+            </th>
           </tr>
         </thead>
         <tbody>
-          {fields.map((item, index) => (
-            <tr key={item.id}>
-              <td>
-                <input
-                  {...register(`packages.${index}.qty`)}
-                  style={{ width: "50%" }}
-                />
-              </td>
-              <td className="">
-                <input
-                  {...register(`packages.${index}.weight`)}
-                  type="number"
-                  style={{ width: "100%" }}
-                />
-              </td>
-              <td className="">
-                <select
-                  {...register(`packages.${index}.unit`)}
-                  style={{ width: "100%" }}
-                >
-                  <option>lb</option>
-                  <option>kg</option>
-                </select>
-              </td>
-               <td>
-                oz
-              </td> 
-              <td className="">
-                <input
-                  {...register(`packages.${index}.length`)}
-                  type="number"
-                  style={{ width: "100%" }}
-                />
-              </td>
-              <td className="">
-                <input
-                  {...register(`packages.${index}.width`)}
-                  type="number"
-                  style={{ width: "100%" }}
-                />
-              </td>
-              <td>
-                <input
-                  {...register(`packages.${index}.height`)}
-                  type="number"
-                  style={{ width: "100%" }}
-                />
-              </td>
-              <td className=" border-start-1 border-secondary">in</td>
-              <td className="d-flex flex-row justify-content-center">
-                <MdDeleteForever
-                  className="w-75 h-75"
-                  onClick={() => remove(index)}
-                />
-              </td>
-            </tr>
-          ))}
+        <tr>
+            <td><input style={{width:"50%"}}/></td>
+            <td className=""><input type="number" style={{width:"100%"}}/></td>
+            <td className=""><select style={{width:"60px"}}>
+              <option>lb</option>
+              <option>kg</option>
+            </select></td>
+            <td><span style={{width:"100%"}}>oz</span></td>
+            <td className=""><input type="number" style={{width:"100%"}}/></td>
+            <td className=""><input type="number" style={{width:"100%"}}/></td>
+            <td><input type="number" style={{width:"100%"}}/></td>
+            <td className=' border-start-1 border-secondary'>in</td>
+            <td className="d-flex flex-row justify-content-center"><MdDeleteForever 
+            className="w-75 h-75"/></td>
+          </tr>
+
+            {packageon && (
+              <AddPackage/>
+            )}
+          <br/>
+         <MdOutlineAddToPhotos style={{width:"30px",height:"30px"}} className="d-inline" onClick={()=>setPackageon(!packageon)}/>
         </tbody>
       </Table>
 
-      <MdOutlineAddToPhotos
-        style={{ width: "30px", height: "30px" }}
-        className="d-inline"
-        onClick={() => append({})}
-      />
-
-   
-
-     {/* <div
-        className="secondForm"
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-          flexWrap: "wrap",
-          width: "300px",
-          height: "auto",
-        }}
-      >
-        <h6 style={{ textAlign: "center" }}>Package QTY</h6>
-        <input
-          type="number"
-          style={{ width: "90px", alignContent: "center" }}
-        />
-        <h6 style={{ textAlign: "center" }}>WEIGHT PER PACKAGE</h6>
-        <input
-          type="number"
-          style={{ width: "90px", alignContent: "center" }}
-        />
-        <select style={{ width: "90px", alignContent: "center" }}>
-          <option>lb</option>
-          <option>kg</option>
-        </select>
-        <span style={{ textAlign: "center" }}>OZ</span>
-        <h6 style={{ textAlign: "center" }}>
-          {" "}
-          DIMENSIONS <br></br> L × W × H{" "}
-        </h6>
-        <input
-          type="number"
-          style={{ width: "90px", alignContent: "center" }}
-        />
-        <input
-          type="number"
-          style={{ width: "90px", alignContent: "center" }}
-        />
-        <input
-          type="number"
-          style={{ width: "90px", alignContent: "center" }}
-        />
-        <p style={{ textAlign: "center" }}>IN</p>
-        <h6 style={{ textAlign: "center" }}>Delete</h6>
-        <MdDeleteForever style={{ width: "30px", height: "40px" }} />
-        <hr />
-        {pac && <Add2ndPackage />}
-        <br />
-        <MdOutlineAddToPhotos
-          style={{ width: "30px", height: "30px" }}
-          className="d-inline"
-          onClick={() => setPac(!pac)}
-        />
-        <hr />
-      </div>  */}
-    </>
+      <div className="secondformM">
+      <div className="secondForm">
+          <h6 style={{textAlign:"center"}}>Package QTY</h6>
+          <input type="number" style={{width:"90px",alignContent:"center"}}/>
+          <h6 style={{textAlign:"center"}}>WEIGHT PER PACKAGE</h6>
+          <input type="number" style={{width:"90px",alignContent:"center"}}/>
+          <select style={{width:"90px",alignContent:"center"}}>
+            <option>lb</option>
+            <option>kg</option>
+          </select>
+          <span style={{textAlign:"center"}}>OZ</span>
+          <h6 style={{textAlign:"center"}}> DIMENSIONS <br></br> L × W × H {" "}</h6>
+          <input type="number" style={{width:"90px",alignContent:"center"}}/>
+          <input type="number" style={{width:"90px",alignContent:"center"}}/>
+          <input type="number" style={{width:"90px",alignContent:"center"}}/>
+          <p style={{textAlign:"center"}}>IN</p>
+          <h6 style={{textAlign:"center"}}>Delete</h6>
+          <MdDeleteForever style={{width:"30px",height:"40px"}}/><hr/>
+          {pac && (
+              <Add2ndPackage/>
+            )}
+          <br/>
+         <MdOutlineAddToPhotos style={{width:"30px",height:"30px"}} className="d-inline" onClick={()=>setPac(!pac)}/>
+      </div>
+      </div>
+         <br/><br/>
+         <button style={{padding:"10px 38px 10px 38px",backgroundColor:"#751aff",borderRadius:"20px",color:"white",fontWeight:"bold",fontSize:"13px",
+         fontFamily:"inherit",margin:"40px"}}>CALCULATE SHIPPING RATES</button>
+         <FedexRates/>
+    </div>
   );
 };
 
 export default Package;
+

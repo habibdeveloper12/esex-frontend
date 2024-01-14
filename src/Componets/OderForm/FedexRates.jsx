@@ -6,6 +6,7 @@ import Table from "react-bootstrap/esm/Table";
 import { IoIosSearch } from "react-icons/io";
 import { useState } from "react";
 import Customs from "./Customs";
+import './FedexRates.css'
 const FedexRates = () => {
 
     const [naviget,setNavigate]=useState(true);
@@ -15,7 +16,7 @@ const FedexRates = () => {
         className="fedexratesM"
         style={{ width: "90%", margin: "auto", height: "auto" }}
       >
-        <div
+        {/* <div
           className="heading"
           style={{
             display: "flex",
@@ -33,119 +34,8 @@ const FedexRates = () => {
             </h6>
           </div>
           <h6>Package Type</h6>
-        </div>
-        <div
-          className="fedexrates"
-          style={{
-            margin: "auto",
-            width: "90%",
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "space-evenly",
-            height: "200px",
-            border: "1px solid #00bbf0",
-            padding: "13px 13px 0px 13px",
-            borderRadius: "15px",
-          }}
-        >
-          <div className="fedexlogo" style={{ flexGrow: "1" }}>
-            <img
-              src={photos.fedexLogo}
-              alt="fedexlogo"
-              style={{ width: "50px", height: "15px",textAlign:"start"}}
-            />
-            <p>Fedex Priority Overnight</p>
-          </div>
-          <div className="daycount" style={{ flexGrow: "1" }}>
-            <h6>1 Day</h6>
-            <p>Wed 07/27 by 11.00 am</p>
-            <button
-              style={{
-                backgroundColor: "#42b883",
-                borderRadius: "20px",
-                fontSize: "13px",
-                fontFamily: "inherit",
-                border: "none",
-                color: "white",
-              }}
-            >
-              Money-Back Guarantee
-            </button>
-            &#10068;
-          </div>
-          <div className="sign" style={{ flexGrow: "1" }}>
-            <button
-              style={{
-                borderRadius: "15px",
-                padding: "4px 19px 4px 19px",
-                fontSize: "15px",
-                border: "1px solid grey",
-                backgroundColor: "white",
-              }}
-            >
-              Add Signature
-            </button>
-          </div>
-          <div
-            className="packageType"
-            style={{ display: "flex", flexDirection: "column", flexGrow: "2" }}
-          >
-            <div
-              className="1st"
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "space-between",
-                width: "auto",
-                marginBottom: "5px",
-              }}
-            >
-              <img
-                src={photos.Envlope}
-                alt="Envlope"
-                style={{ width: "70", height: "50px" }}
-              />
-              <p>Fedex Envlope &#10068;</p>
-              $40.14
-            </div>
-            <div
-              className="2nd"
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "space-between",
-                width: "auto",
-                marginBottom: "5px",
-              }}
-            >
-              <img
-                src={photos.Envlope}
-                alt="Envlope"
-                style={{ width: "70", height: "50px" }}
-              />
-              <p>Fedex Pak &#10068;</p>$38.81
-            </div>
-            <div
-              className="3rd"
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "space-between",
-                width: "auto",
-                marginBottom: "5px",
-              }}
-            >
-              <img
-                src={photos.Box}
-                alt="Envlope"
-                style={{ width: "70", height: "50px" }}
-              />
-              <p>Package &#10068;</p>
-              $43.25
-            </div>
-          </div>
-        </div>
-
+        </div> */}
+        
         {/**this is for Customs Declaration*/}
 
         <div className="declaration">
@@ -155,13 +45,13 @@ const FedexRates = () => {
         </div>
         <form style={{textAlign:"start",marginLeft:"60px"}}>
             <label htmlFor="cus" style={{marginRight:"10px"}}>Select Contents</label>
-            <select style={{width:"400px",height:"35px",border:"2px solid #3ab1c8",borderRadius:"5px",placeholder:"Merchandise"}}>
+            <select style={{width:"60%",height:"35px",border:"2px solid #3ab1c8",borderRadius:"5px",placeholder:"Merchandise"}}>
                 <option>Documents</option>
                 <option>Gift</option>
                 <option>Sample</option>
             </select>
         </form><br/>
-        <Table >
+        {/* <Table >
             <thead style={{border:"1px solid #3ab1c8",backgroundColor:"#d9f2ff"}}>
                 <tr>
                     <th colSpan={2}>Item Description</th>
@@ -176,11 +66,11 @@ const FedexRates = () => {
             <tbody>
                 <tr>
                     <td><IoIosSearch/></td>
-                    <td><input type="text"/></td>
-                    <td><input type="number"/></td>
-                    <td>$<input type="number"/></td>
-                    <td>$<input type="number"/></td>
-                    <td><input type="text"/></td>
+                    <td><input type="text" className="ratesInput"/></td>
+                    <td><input type="number" className="ratesInput"/></td>
+                    <td>$<input type="number" className="ratesInput"/></td>
+                    <td>$<input type="number" className="ratesInput"/></td>
+                    <td><input type="text" className="ratesInput"/></td>
                     <td><select style={{height:"31px",width:"135px"}}>
                         <option>United States</option>
                     </select></td>
@@ -190,8 +80,34 @@ const FedexRates = () => {
                     <Customs/>
                    )}
             </tbody>
-        </Table>
-        <div style={{display:"flex",flexDirection:"row",justifyContent:"space-between"}}>
+        </Table> */}
+          {/*fedex rates field */}
+           <div className="fedex-rates-div"> 
+           <div className="feddiv">
+            <IoIosSearch style={{width:"47px",height:"25"}}/>
+           </div>
+           <div className="feddiv">
+            <h6>Item Description</h6>
+            <input type="text" />
+           </div>
+           <div className="feddiv"><h6>Qty</h6>
+           <input type="number"/></div>
+           <div className="feddiv"><h6>Value<smal>(each)</smal></h6>
+           <input type="number"/></div>
+           <div className="feddiv"><h6>Total Value</h6>
+           <input type="number"/></div>
+           <div className="feddiv"><h6>HS Code</h6>
+           <input type="number"/></div>
+           <div className="feddiv"><h6>Country of Origin</h6>
+           <select style={{width:"12rem",height:"30px"}}>
+            <option>United States</option>
+           </select></div>
+           <div className="feddiv"><h6>Delete</h6>
+           <MdDeleteForever style={{width:"46px",height:"25"}}/></div>
+           </div><hr/>
+          
+           {/*fedex rates field */}
+        <div style={{display:"flex",flexDirection:"row",justifyContent:"space-between",marginTop:"0px"}}>
         <div style={{color:"#3ab1c8",fontFamily:"inherit",fontSize:"15px",display:"inline"}}
          onClick={()=>setNavigate(!naviget)}>
         + Add New Item

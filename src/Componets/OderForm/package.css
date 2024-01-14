@@ -1,19 +1,41 @@
-.tableHead {
-  display: block;
+@media screen and (max-width:700px){
+     .secondForm{
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        align-items: center;
+        flex-wrap: wrap;
+        width: 300px;
+        height: auto;
+     }
+     .secondFormM{
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+     }
+     .tableHead{
+      display: none;
+     }
 }
 
-.secondForm {
-  display: none;
-}
-
-/* Media query to hide the table when the screen size is 920px or below */
-@media screen and (max-width: 920px) {
-  .tableHead {
-    display: none;
-  }
-
-  /* Media query to show the secondForm when the screen size is 920px or below */
-  .secondForm {
-    display: flex;
-  }
+@media screen and (min-width:699px){
+     .tableHead{
+      display: block;
+      margin-left: 40px;
+     }
+     .secondFormM{
+      display: none;
+     }
+     .secondForm{
+      display: none;
+     }
+     .packageJsMain{
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          flex-direction: column;
+          padding-left: 50px;
+     }
 }

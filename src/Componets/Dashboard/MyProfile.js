@@ -3,11 +3,12 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import auth from "../../firebase.init";
 import Loading from "../Loading/Loading";
 import axios from "axios";
-
+import OrderDetails from "../ShippedOrderPage/OrderDetails";
 const MyProfile = () => {
   const [user] = useAuthState(auth);
   const [profile, setProfile] = useState({});
   const [loading, setLoading] = useState(false);
+  const [shippedon,setShippedon]=useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -35,7 +36,8 @@ const MyProfile = () => {
   if (loading) return <Loading />;
 
   return (
-    <div
+   <>
+     <div
       data-aos="fade-up mt-5"
       data-aos-anchor-placement="center-bottom"
       className="my-5 card p-5 lg-w-50 mx-auto"
@@ -52,7 +54,13 @@ const MyProfile = () => {
         <span>Email:</span>
         <span>{profile?.email}</span>
       </div>
+
     </div>
+      <button onClick={()=>setShippedon(!shippedon)}>Shipped order page</button>
+      {shippedon && (
+        <OrderDetails/>
+      )}
+   </>
   );
 };
 
