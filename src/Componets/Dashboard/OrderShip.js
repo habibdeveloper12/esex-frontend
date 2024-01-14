@@ -6,9 +6,8 @@ import OrderForm from "../OderForm/OrderForm";
 import { useAuthState } from "react-firebase-hooks/auth";
 import auth from "../../firebase.init";
 import OrderDetails from "../savedOrder/OrderDetails";
-import OrderDetailsA from "./OrderDetails";
 
-const Order = (handleCreateOrder) => {
+const OrderShip = () => {
   const [orders, setOrders] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [showOrderPopup, setShowOrderPopup] = useState(false);
@@ -37,7 +36,7 @@ const Order = (handleCreateOrder) => {
         );
         console.log(response);
         const ordersData = response.data.data;
-        const filter = ordersData.filter((item) => item.orderItem == "Saved");
+        const filter = ordersData.filter((item) => item.orderItem != "Saved");
         setOrders(filter);
       } catch (error) {
         console.error("Error fetching orders:", error.message);
@@ -46,21 +45,6 @@ const Order = (handleCreateOrder) => {
 
     fetchOrders();
   }, []);
-  function formatDate(originalDate) {
-    const date = new Date(originalDate);
-
-    const options = {
-      weekday: "short",
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      timeZoneName: "short",
-    };
-
-    return new Intl.DateTimeFormat("en-US", options).format(date);
-  }
   console.log(orders);
   const handleAction = (orderId) => {
     // Add your action logic here
@@ -79,6 +63,22 @@ const Order = (handleCreateOrder) => {
     // Perform any additional actions with filteredOrders if needed
     console.log(filteredOrders);
   };
+  const [date, setDate] = useState(new Date());
+  function formatDate(originalDate) {
+    const date = new Date(originalDate);
+
+    const options = {
+      weekday: "short",
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      timeZoneName: "short",
+    };
+
+    return new Intl.DateTimeFormat("en-US", options).format(date);
+  }
   return (
     <div className="">
       <div className=" mb-3  my-5">
@@ -152,7 +152,7 @@ const Order = (handleCreateOrder) => {
                       &times;
                     </span>
                     <h2 className="py-4 text-success"></h2>
-                    <OrderDetailsA {...{ order }} />
+                    <OrderDetails {...{ order, date: orders.createdAt }} />
                   </div>
                 </div>
               )}
@@ -184,4 +184,4 @@ const Order = (handleCreateOrder) => {
   );
 };
 
-export default Order;
+export default OrderShip;

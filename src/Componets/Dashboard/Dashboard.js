@@ -63,6 +63,19 @@ const Dashboard = () => {
                   className="list-group-item list-group-item-action bg-transparent second-text fw-bold"
                 >
                   <i className="fas  fa-project-diagram me-2"></i>Orders
+                  <Link
+                    to="order/saved"
+                    className="list-group-item list-group-item-action bg-transparent second-text fw-bold"
+                  >
+                    <i className="fas  fa-project-diagram me-2"></i>Saved Orders
+                  </Link>
+                  <Link
+                    to="order/shipping"
+                    className="list-group-item list-group-item-action bg-transparent second-text fw-bold"
+                  >
+                    <i className="fas  fa-project-diagram me-2"></i>Shipped
+                    Orders
+                  </Link>
                 </Link>
                 <Link
                   to="balance"

@@ -1,0 +1,270 @@
+/*~~~~~~~~This is for dektop~~~~~~~~ */
+@media screen and (min-width: 300px) {
+  .main {
+    padding: 15px 20px 15px 20px;
+    background-color: aliceblue;
+    width: 100%;
+    height: auto;
+  }
+  .top2nd {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    height: 400px;
+  }
+  .greenLine {
+    display: flex;
+    justify-content: space-between;
+    background-color: rgb(106, 174, 4);
+    width: 95%;
+    height: 11px;
+    border-radius: 20px;
+    margin-left: 25px;
+  }
+  .Notes {
+    display: flex;
+    justify-content: space-around;
+    flex-direction: row;
+    margin-top: 70px;
+  }
+  .NotesInput {
+    width: 350px;
+    height: 37px;
+    border-radius: 5px;
+  }
+  .Shipment-Details {
+    margin-top: 30px;
+  }
+  .shipment-details-flex {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 80%;
+  }
+  .shipment-singleCom {
+    display: flex;
+    justify-content: space-evenly;
+    flex-direction: column;
+  }
+  .package-table-footer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 80%;
+  }
+  .Total-paid {
+    display: flex;
+    flex-direction: column;
+    margin-top: 30px;
+    width: 30%;
+  }
+  .based-child {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    flex-direction: row;
+  }
+  .btnalvi {
+    padding: 4px;
+    border-radius: 5px;
+    border: 1px solid black;
+    font-size: 10px;
+    font-weight: 800;
+  }
+  .custome-head-flex {
+    display: flex;
+    justify-content: space-between;
+    width: "95%";
+    display: none;
+  }
+  .custom-footer {
+    display: flex;
+    justify-content: space-between;
+    width: 300px;
+  }
+  .custome-table {
+    width: 90%;
+    margin-top: 10px;
+  }
+  .duty_paragraph {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row;
+  }
+  .duty-main {
+    width: 80%;
+  }
+  .des123 {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 60%;
+    margin-bottom: 20px;
+  }
+  .CHead {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid black;
+    width: 30%;
+    height: 40px;
+    margin-top: 30px;
+  }
+  .package-heading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid black;
+    width: 50%;
+    height: 40px;
+    margin-top: 30px;
+    margin-bottom: 20px;
+  }
+  .pakinfo {
+    width: 90%;
+  }
+}
+/*~~~~~~~~This is for Mobile~~~~~~~~ */
+/* @media screen and (max-width:900px){
+    .main{
+        display: none;
+    }
+} */
+/* @media screen and (max-width:1515px){
+    .Notes{
+        display: flex;
+        flex-direction: column;
+        gap: 60px;
+        margin-top: 70px;
+    }
+    .NotesInput{
+        width:180px;
+        height: 30px;
+    }
+} */
+@media screen and (max-width: 600px) {
+  .custome-head-flex {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 400px;
+    width: 300px;
+    border: 2px solid black;
+    padding: 7px;
+    margin-top: 10px;
+  }
+  .Cuinput {
+    width: 100%;
+  }
+  .custome-table {
+    display: none;
+  }
+  .CHead {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 80%;
+    height: 30px;
+  }
+  .des123 {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 60%;
+    height: 300px;
+    margin-bottom: 20px;
+  }
+  .Total-paid {
+    display: flex;
+    flex-direction: column;
+    margin-top: 30px;
+    width: 80%;
+  }
+  .package-heading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid black;
+    width: 100%;
+    height: 50px;
+    margin-top: 30px;
+    padding: 5px;
+  }
+  .pakinfo {
+    margin-left: -12px;
+  }
+  .greenLine {
+    margin-left: -7px;
+  }
+  .top2nd {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+    height: 600px;
+    margin-bottom: 30px;
+  }
+  .NotesInput {
+    width: 90%;
+    height: 37px;
+    border-radius: 5px;
+    font-size: 13px;
+  }
+  .shipment-details-flex {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    flex-direction: row;
+    font-size: 12px;
+  }
+  .shipment-details-flex h6 {
+    font-size: 13px;
+  }
+  .pakinfo {
+    font-size: 11px;
+    width: 100%;
+  }
+  .Total-paid {
+    display: flex;
+    flex-direction: column;
+    margin-top: 30px;
+    width: 100%;
+  }
+  .package-table-footer {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 100%;
+    font-size: 14px;
+  }
+  .duty_paragraph {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+  }
+  .based-child {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row;
+    width: 93%;
+    font-size: 18px;
+  }
+}
+@media screen and (max-width: 1150px) {
+  .custome-table {
+    width: 100%;
+  }
+}
+
+@media screen and (max-width: 835px) {
+  .Notes {
+    display: flex;
+    justify-content: space-around;
+    flex-direction: column;
+    margin-top: 70px;
+  }
+  .NotesInput {
+    width: 300px;
+    height: 37px;
+    border-radius: 5px;
+  }
+}

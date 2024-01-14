@@ -23,6 +23,7 @@ import OrderForm from "./Componets/OderForm/OrderForm";
 import WalletBalance from "./Componets/Dashboard/WalletBalance";
 import Order from "./Componets/Dashboard/Order";
 import MyProfile from "./Componets/Dashboard/MyProfile";
+import OrderShip from "./Componets/Dashboard/OrderShip";
 
 function App() {
   const user = useAuthState(auth);
@@ -39,7 +40,6 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Register />} />
 
-
           <Route
             path="/dashboard"
             element={
@@ -48,11 +48,16 @@ function App() {
               </RequireAuth>
             }
           >
-           <Route path="/dashboard/dashboarddetail" element={<DashboardDetail />} />
-           <Route path="/dashboard/order" element={<Order />} />
-           <Route path="/dashboard/balance" element={<WalletBalance />} />
-           <Route path="/dashboard/myProfile" element={ <MyProfile/>} />
-            </Route> 
+            <Route
+              path="/dashboard/dashboarddetail"
+              element={<DashboardDetail />}
+            />
+            <Route path="/dashboard/order" element={<Order />} />
+            <Route path="/dashboard/order/saved" element={<Order />} />
+            <Route path="/dashboard/order/shipping" element={<OrderShip />} />
+            <Route path="/dashboard/balance" element={<WalletBalance />} />
+            <Route path="/dashboard/myProfile" element={<MyProfile />} />
+          </Route>
         </Routes>
       </Router>
     </div>
