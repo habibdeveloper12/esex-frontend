@@ -7,10 +7,16 @@ import { IoIosSearch } from "react-icons/io";
 import { useState } from "react";
 import Customs from "./Customs";
 import { useFieldArray, useForm } from "react-hook-form";
-const FedexRates = ({ rate, selectedRate, setSelectedRate }) => {
+import { useDispatch, useSelector } from "react-redux";
+import axios from "axios";
+import { toast } from "react-toastify";
+import { updateWallet } from "../../store/slices/walletSlice";
+import { useAuthState } from "react-firebase-hooks/auth";
+const FedexRates = ({ rate, selectedRate, setSelectedRate, orderId }) => {
   const [naviget, setNavigate] = useState(true);
   const [select, setSelect] = useState({});
-
+  const { sender, recipient, addons, id } = useSelector((state) => state.form);
+  const wallet = useSelector((state) => state.wallet);
   function convertDateFormat(apiDate) {
     const options = {
       weekday: "short",
@@ -29,7 +35,8 @@ const FedexRates = ({ rate, selectedRate, setSelectedRate }) => {
   }
   const { control, register, handleSubmit, setValue } = useForm({
     defaultValues: {
-      selectedContent: "Documents", // Set your default value for the dropdown
+      selectedContent: "Documents",
+      tax: "up-to-100",
       items: [
         {
           description: "",
@@ -44,7 +51,8 @@ const FedexRates = ({ rate, selectedRate, setSelectedRate }) => {
     control,
     name: "items",
   });
-
+  console.log(id);
+  const [user] = useAuthState();
   const handleAddNewItem = () => {
     append({}); // Add a new empty item to the 'items' array
   };
@@ -58,9 +66,58 @@ const FedexRates = ({ rate, selectedRate, setSelectedRate }) => {
       .reduce((sum, item) => sum + parseFloat(item.value) || 0, 0)
       .toFixed(2);
   }, [fields]);
+  const dispatch = useDispatch();
+  const onSubmit = async (data) => {
+    console.log(parseInt(selectedRate.rate) > wallet);
+    if (!selectedRate) {
+      alert("Please select package  ");
+    } else if (parseInt(selectedRate.rate) > wallet) {
+      alert("Please add money on wallet ");
+    } else {
+      try {
+        const response = await axios.patch(
+          `http://localhost:5001/api/v1/order/update-order/${id}`,
+          {
+            sender,
+            recipient,
+            addons,
+            custom: data,
+            shipment: selectedRate,
+            orderId: id,
+          }
+        );
+        const data = await axios.patch(
+          `http://localhost:5001/api/v1/user/wallet`,
+          {
+            wallet: selectedRate.rate,
+            email: user?.email,
+          }
+        );
+        dispatch(updateWallet(wallet - parseFloat(selectedRate.rate)));
+        console.log("Full response:", response);
 
-  const onSubmit = (data, event) => {
-    event.preventDefault(); // Prevent default form submission
+        if (
+          response.data.success !== undefined &&
+          response.data.success === false
+        ) {
+          toast.error(`Error: ${response.data.message}`, {
+            position: toast.POSITION.TOP_CENTER,
+          });
+        } else {
+          console.log("df");
+          toast.success("Order Place successfully!", {
+            position: toast.POSITION.TOP_CENTER,
+          });
+        }
+      } catch (error) {
+        console.error("Error saving address:", error.message);
+        toast.error("An error occurred while saving the address.", {
+          position: toast.POSITION.TOP_CENTER,
+        });
+      }
+    }
+
+    console.log(sender, recipient, addons);
     console.log(data);
 
     // Further processing or API calls can be added here
@@ -213,25 +270,27 @@ const FedexRates = ({ rate, selectedRate, setSelectedRate }) => {
           </h6>
         </div>
         <form
+          onSubmit={handleSubmit(onSubmit)}
           style={{ textAlign: "start", marginLeft: "60px" }}
-          onSubmit={(event) => handleSubmit((data) => onSubmit(data, event))}
         >
           <label htmlFor="cus" style={{ marginRight: "10px" }}>
             Select Contents
           </label>
-          <select
-            {...register("selectedContent")}
-            style={{
-              width: "400px",
-              height: "35px",
-              border: "2px solid #3ab1c8",
-              borderRadius: "5px",
-            }}
-          >
-            <option value="Documents">Documents</option>
-            <option value="Gift">Gift</option>
-            <option value="Sample">Sample</option>
-          </select>
+          <div className="mt-2">
+            <select
+              {...register("selectedContent")}
+              style={{
+                width: "400px",
+                height: "35px",
+                border: "2px solid #3ab1c8",
+                borderRadius: "5px",
+              }}
+            >
+              <option value="Documents">Documents</option>
+              <option value="Gift">Gift</option>
+              <option value="Sample">Sample</option>
+            </select>
+          </div>
 
           <br />
 
@@ -333,12 +392,17 @@ const FedexRates = ({ rate, selectedRate, setSelectedRate }) => {
             </div>
           </div>
           <div className=" d-flex justify-content-between align-middle">
-            <div style={{ textAlign: "start", margin: "30px 0px 20px 0px" }}>
+            <div
+              className="mt-9"
+              style={{ textAlign: "start", margin: "30px 0px 20px 0px" }}
+            >
               <MdKeyboardArrowRight
                 style={{ marginRight: "10px", textAlign: "start" }}
               />
               <h6
+                className="mn-2"
                 style={{
+                  fontWeight: "bold",
                   display: "inline",
                   marginBottom: "30px",
                   textAlign: "start",
@@ -356,35 +420,39 @@ const FedexRates = ({ rate, selectedRate, setSelectedRate }) => {
                   borderRadius: "5px",
                 }}
               >
-                <option value="Documents">Up to $100</option>
-                <option value="Gift">Up to $200</option>
-                <option value="Sample">Up to $500</option>
+                <option value="up-to-100">Up to $100</option>
+                <option value="up-to-200">Up to $200</option>
+                <option value="up-to-300">Up to $500</option>
               </select>
             </div>
             <div
               style={{ textAlign: "start", margin: "30px 0px 20px 0px" }}
-              className="d-flex justify-items-center"
+              className=""
             >
               <div className="d-flex justify-content-left align-items-center  ">
                 <img
                   alt="Package"
                   loading="lazy"
-                  width="62"
-                  height="44"
+                  width="80"
+                  height="60"
                   decoding="async"
                   data-nimg="1"
                   style={{ color: "transparent" }}
                   src={photos.fedexLogo}
                 />
                 <div>
-                  {selectedRate.rate}
+                  <h4 className="bold fw-bold"> ${selectedRate.rate}</h4>
                   <hr />
                   <h6>Shipping: {selectedRate.rate} </h6>
                   <h6> Insurence: $2 </h6>
                 </div>
               </div>
               <div>
-                <button type="submit" className=" mt-10 text-white">
+                <button
+                  style={{ width: "100%" }}
+                  type="submit"
+                  className="btn btn-primary w-full mt-10 text-white"
+                >
                   Purchase
                 </button>
               </div>

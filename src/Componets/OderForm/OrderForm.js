@@ -11,7 +11,13 @@ import AddressBookPopup from "./AddressBookPopup";
 import AddressBookPopupr from "./AddressBookPopupr";
 import { useDispatch, useSelector } from "react-redux";
 import { increment } from "../../store/slices/counterSlice";
-import { nextStep } from "../../store/formSlice";
+import {
+  nextStep,
+  setCustomAddons,
+  setId,
+  setRecipient,
+  setSender,
+} from "../../store/formSlice";
 import Package from "./Package";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
@@ -21,7 +27,7 @@ const OrderForm = () => {
   const [user] = useAuthState(auth);
 
   const [countries, setCountries] = useState([]);
-  const defaultCountry = { value: "United States", label: "United States" };
+  const defaultCountry = { value: "US", label: "United States" };
   const [destinationCountry, setDestinationCountry] = useState(defaultCountry);
   const [originCountry, setOriginCountry] = useState(defaultCountry);
   const [showPopup, setShowPopup] = useState(false);
@@ -38,10 +44,11 @@ const OrderForm = () => {
   } = useForm({
     defaultValues: {
       packages: [
-        { qty: "", weight: "", unit: "lb", length: "", width: "", height: "" },
+        { qty: "", weight: 0, unit: "lb", length: 0, width: 0, height: 0 },
       ],
     },
   });
+
   console.log(getValues);
   const { fields, append, remove } = useFieldArray({
     control,
@@ -54,17 +61,23 @@ const OrderForm = () => {
       recipient: recipientFormData,
       parcel: data.packages,
     };
-    console.log("sdsd", selectedRate);
+    console.log("sdsd", obj);
+
+    dispatch(setSender(senderFormData));
+    dispatch(setRecipient(recipientFormData));
+    dispatch(setCustomAddons(data.packages));
     try {
       // setLoading(true);
+
       const response = await axios.post(
         `http://localhost:5001/api/v1/order/create-rate`,
         {
           ...obj,
         }
       );
-      console.log("Full response:", response);
+      console.log("Full response:", response.data._id);
       setRate(response.data.rates);
+
       setLoading(false);
       if (
         response.data.success !== undefined &&
@@ -93,18 +106,14 @@ const OrderForm = () => {
     console.log(obj);
   };
 
-  const handleOriginChange = (selectedCountry) => {
-    console.log("Selected Country:", selectedCountry);
-    setOriginCountry(selectedCountry);
-    console.log(originCountry);
-    setSenderFormData((prevData) => ({
-      ...prevData,
-      country: selectedCountry.value,
-    }));
-  };
-
   const handleDestinationChange = (selectedOption) => {
     setDestinationCountry(selectedOption);
+
+    console.log(originCountry);
+    setRecipientFormData((prevData) => ({
+      ...prevData,
+      country: selectedOption.value,
+    }));
   };
   const [senderFormData, setSenderFormData] = useState({
     name: "",
@@ -135,6 +144,16 @@ const OrderForm = () => {
   });
   const { currentStep } = useSelector((state) => state.form);
   const dispatch = useDispatch();
+  const handleOriginChange = (selectedCountry) => {
+    console.log("Selected Country:", selectedCountry);
+    setOriginCountry(selectedCountry);
+    console.log(originCountry);
+    setSenderFormData((prevData) => ({
+      ...prevData,
+      country: selectedCountry.value,
+    }));
+  };
+  const [orderId, setOrderId] = useState(null);
   const handleSubmitForm = async (e) => {
     e.preventDefault();
 
@@ -147,8 +166,10 @@ const OrderForm = () => {
           email: user?.email,
         }
       );
-      console.log("Full response:", response);
-
+      console.log(response.data.data);
+      setOrderId(response.data.data._id);
+      console.log("ddddddddd", response.data.data._id);
+      dispatch(setId(response.data.data._id));
       if (
         response.data.success !== undefined &&
         response.data.success === false
@@ -482,303 +503,306 @@ const OrderForm = () => {
   }
   console.log(senderFormData);
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <>
-        <div className="bglight">
-          <div className="dflex container  bg-white">
-            <div className="form-group form-group-mobile mx-2 w-100">
-              <h2 className="text-black">
-                Sender |{" "}
-                <FaRegAddressBook
-                  style={{
-                    fontSize: "25px",
-                    color: "#0dcaf0",
-                    cursor: "pointer",
-                  }}
-                />
-                <span
-                  className="text-info fs-4"
-                  style={{ cursor: "pointer" }}
-                  onClick={handleShowPopup}
-                >
-                  Address Book
-                </span>
-                {showPopup && <AddressBookPopup onClose={handleClosePopup} />}
-              </h2>
-              <div className="d-flex">
-                <div className="w-100 pe-3">
-                  <label className="py-1">Name*</label>
-                  <input
-                    type="text"
-                    name="name"
-                    className="form-input bglight"
-                    value={senderFormData.name}
-                    onChange={(e) => handleInputChange(e, "sender")}
+    <>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <>
+          <div className="bglight">
+            <div className="dflex container  bg-white">
+              <div className="form-group form-group-mobile mx-2 w-100">
+                <h2 className="text-black">
+                  Sender |{" "}
+                  <FaRegAddressBook
+                    style={{
+                      fontSize: "25px",
+                      color: "#0dcaf0",
+                      cursor: "pointer",
+                    }}
                   />
-                </div>
-
-                <div className="w-100 ps-2">
-                  <label className="py-1">Company</label>
-                  <input
-                    type="text"
-                    name="company"
-                    className="form-input bglight"
-                    value={senderFormData.company}
-                    onChange={(e) => handleInputChange(e, "sender")}
-                  />
-                </div>
-              </div>
-
-              <label className="py-1">Country:</label>
-              <Select
-                value={originCountry}
-                onChange={handleOriginChange}
-                options={countries}
-                isSearchable
-                // isDisabled
-                placeholder="Select country"
-                formatOptionLabel={({ label, flag }) => (
-                  <div className="d-flex align-items-center gap-3 ">
-                    <div> {flag}</div>
-
-                    {label}
+                  <span
+                    className="text-info fs-4"
+                    style={{ cursor: "pointer" }}
+                    onClick={handleShowPopup}
+                  >
+                    Address Book
+                  </span>
+                  {showPopup && <AddressBookPopup onClose={handleClosePopup} />}
+                </h2>
+                <div className="d-flex">
+                  <div className="w-100 pe-3">
+                    <label className="py-1">Name*</label>
+                    <input
+                      type="text"
+                      name="name"
+                      className="form-input bglight"
+                      value={senderFormData.name}
+                      onChange={(e) => handleInputChange(e, "sender")}
+                    />
                   </div>
-                )}
-              />
-              <label className="py-1"> Address 1*</label>
-              <input
-                type="text"
-                name="street1"
-                className="form-input bglight"
-                value={senderFormData.street1}
-                onChange={(e) => handleInputChange(e, "sender")}
-              />
 
-              <label className="py-1">Address 2</label>
-              <input
-                type="text"
-                name="street2"
-                className="form-input bglight"
-                value={senderFormData.street2}
-                onChange={(e) => handleInputChange(e, "sender")}
-              />
-
-              <div className="d-flex">
-                <div className="w-100 pe-3">
-                  <label className="py-1">City*</label>
-                  <input
-                    type="text"
-                    name="city"
-                    className="form-input bglight"
-                    value={senderFormData.city}
-                    onChange={(e) => handleInputChange(e, "sender")}
-                  />
+                  <div className="w-100 ps-2">
+                    <label className="py-1">Company</label>
+                    <input
+                      type="text"
+                      name="company"
+                      className="form-input bglight"
+                      value={senderFormData.company}
+                      onChange={(e) => handleInputChange(e, "sender")}
+                    />
+                  </div>
                 </div>
 
-                <div className="w-100 ps-2">
-                  <label className="py-1">State/Province*</label>
-                  <input
-                    type="text"
-                    name="state"
-                    className="form-input bglight"
-                    value={senderFormData.state}
-                    onChange={(e) => handleInputChange(e, "sender")}
-                  />
-                </div>
-              </div>
+                <label className="py-1">Country:</label>
+                <Select
+                  value={originCountry}
+                  onChange={handleOriginChange}
+                  options={countries}
+                  isSearchable
+                  // isDisabled
+                  placeholder="Select country"
+                  formatOptionLabel={({ label, flag }) => (
+                    <div className="d-flex align-items-center gap-3 ">
+                      <div> {flag}</div>
 
-              <div className="d-flex">
-                <div className="w-100 pe-3">
-                  <label className="py-1">Zip/Postal Code*</label>
-                  <input
-                    type="text"
-                    name="zip"
-                    className="form-input bglight"
-                    value={senderFormData.zip}
-                    onChange={(e) => handleInputChange(e, "sender")}
-                  />
+                      {label}
+                    </div>
+                  )}
+                />
+                <label className="py-1"> Address 1*</label>
+                <input
+                  type="text"
+                  name="street1"
+                  className="form-input bglight"
+                  value={senderFormData.street1}
+                  onChange={(e) => handleInputChange(e, "sender")}
+                />
+
+                <label className="py-1">Address 2</label>
+                <input
+                  type="text"
+                  name="street2"
+                  className="form-input bglight"
+                  value={senderFormData.street2}
+                  onChange={(e) => handleInputChange(e, "sender")}
+                />
+
+                <div className="d-flex">
+                  <div className="w-100 pe-3">
+                    <label className="py-1">City*</label>
+                    <input
+                      type="text"
+                      name="city"
+                      className="form-input bglight"
+                      value={senderFormData.city}
+                      onChange={(e) => handleInputChange(e, "sender")}
+                    />
+                  </div>
+
+                  <div className="w-100 ps-2">
+                    <label className="py-1">State/Province*</label>
+                    <input
+                      type="text"
+                      name="state"
+                      className="form-input bglight"
+                      value={senderFormData.state}
+                      onChange={(e) => handleInputChange(e, "sender")}
+                    />
+                  </div>
                 </div>
 
-                <div className="w-100 ps-2">
-                  <label className="py-1">Phone*</label>
-                  <PhoneInput
-                    country={originCountry.value.toLowerCase()}
-                    value={phone}
-                    // className="form-input bglight"
-                    onChange={(phone) => setPhone(phone)}
-                  />
-                  {/* <input
+                <div className="d-flex">
+                  <div className="w-100 pe-3">
+                    <label className="py-1">Zip/Postal Code*</label>
+                    <input
+                      type="text"
+                      name="zip"
+                      className="form-input bglight"
+                      value={senderFormData.zip}
+                      onChange={(e) => handleInputChange(e, "sender")}
+                    />
+                  </div>
+
+                  <div className="w-100 ps-2">
+                    <label className="py-1">Phone*</label>
+                    <PhoneInput
+                      country={originCountry.value.toLowerCase()}
+                      value={phone}
+                      // className="form-input bglight"
+                      onChange={(phone) => setPhone(phone)}
+                    />
+                    {/* <input
                     type="text"
                     name="phone"
                     className="form-input bglight"
                     value={senderFormData.phone}
                     onChange={(e) => handleInputChange(e, "sender")}
                   /> */}
-                </div>
-              </div>
-
-              <label className="py-1">Email*</label>
-              <input
-                type="text"
-                name="email"
-                placeholder="To recived notificaition"
-                className="form-input bglight"
-                value={senderFormData.email}
-                onChange={(e) => handleInputChange(e, "sender")}
-              />
-
-              <div className="d-flex justify-content-between">
-                <div className="py-2">
-                  <div className="d-block">
-                    <div>
-                      <label>
-                        <span className="fw-semibold text-black">TAX ID</span>{" "}
-                        (vat, eori, ioss, pan, etc)
-                      </label>
-                    </div>
-                    <div>
-                      <input
-                        type="text"
-                        name="tax"
-                        placeholder="Vat:123456789"
-                        className="rounded"
-                        value={senderFormData.tax}
-                        onChange={(e) => handleInputChange(e, "sender")}
-                      />
-                    </div>
                   </div>
                 </div>
-                <div className="ml-auto pt-4">
-                  <button
-                    className="rounded bg-warning"
-                    onClick={handleSaveAddress}
-                  >
-                    Save the Address
-                  </button>
-                </div>
-              </div>
-            </div>
 
-            {/* recipient */}
-
-            <div className="form-group form-group-mobile mx-2 w-100">
-              <h2 className="text-black">
-                Recipient |{" "}
-                <FaRegAddressBook
-                  style={{ fontSize: "25px", color: "#0dcaf0" }}
+                <label className="py-1">Email*</label>
+                <input
+                  type="text"
+                  name="email"
+                  placeholder="To recived notificaition"
+                  className="form-input bglight"
+                  value={senderFormData.email}
+                  onChange={(e) => handleInputChange(e, "sender")}
                 />
-                <span
-                  style={{ cursor: "pointer" }}
-                  onClick={handleShowPopupr}
-                  className="text-info fs-4"
-                >
-                  Address Book
-                </span>{" "}
-              </h2>
-              {showPopupr && <AddressBookPopupr onClose={handleClosePopupr} />}
-              <div className="d-flex">
-                <div className="w-100 pe-3">
-                  <label className="py-1">Name*</label>
-                  <input
-                    type="text"
-                    name="name"
-                    className="form-input bglight"
-                    value={recipientFormData.name}
-                    onChange={(e) => handleInputChange(e, "recipient")}
-                  />
-                </div>
 
-                <div className="w-100 ps-2">
-                  <label className="py-1">Company</label>
-                  <input
-                    type="text"
-                    name="company"
-                    className="form-input bglight"
-                    value={recipientFormData.company}
-                    onChange={(e) => handleInputChange(e, "recipient")}
-                  />
-                </div>
-              </div>
-              <label className="py-1">Country*</label>
-              <Select
-                value={destinationCountry}
-                onChange={handleDestinationChange}
-                options={countries}
-                isSearchable
-                placeholder="Select country"
-                formatOptionLabel={({ label, flag }) => (
-                  <div className="d-flex align-items-center gap-3 ">
-                    <div> {flag}</div>
-
-                    {label}
+                <div className="d-flex justify-content-between">
+                  <div className="py-2">
+                    <div className="d-block">
+                      <div>
+                        <label>
+                          <span className="fw-semibold text-black">TAX ID</span>{" "}
+                          (vat, eori, ioss, pan, etc)
+                        </label>
+                      </div>
+                      <div>
+                        <input
+                          type="text"
+                          name="tax"
+                          placeholder="Vat:123456789"
+                          className="rounded"
+                          value={senderFormData.tax}
+                          onChange={(e) => handleInputChange(e, "sender")}
+                        />
+                      </div>
+                    </div>
                   </div>
-                )}
-              />
-              <label className="py-1">Address 1*</label>
-              <input
-                type="text"
-                name="street1"
-                required
-                className="form-input bglight"
-                value={recipientFormData.street1}
-                onChange={(e) => handleInputChange(e, "recipient")}
-              />
-
-              <label className="py-1">Address 2</label>
-              <input
-                type="text"
-                name="street2"
-                className="form-input"
-                value={recipientFormData.street2}
-                onChange={(e) => handleInputChange(e, "recipient")}
-              />
-
-              <div className="d-flex">
-                <div className="w-100 pe-3">
-                  <label className="py-1">City*</label>
-                  <input
-                    type="text"
-                    name="city"
-                    required
-                    className="form-input bglight"
-                    value={recipientFormData.city}
-                    onChange={(e) => handleInputChange(e, "recipient")}
-                  />
-                </div>
-
-                <div className="w-100 ps-2">
-                  <label className="py-1">State/Province*</label>
-                  <input
-                    type="text"
-                    name="state"
-                    className="form-input bglight"
-                    value={recipientFormData.state}
-                    onChange={(e) => handleInputChange(e, "recipient")}
-                  />
+                  <div className="ml-auto pt-4">
+                    <button
+                      className="rounded bg-warning"
+                      onClick={handleSaveAddress}
+                    >
+                      Save the Address
+                    </button>
+                  </div>
                 </div>
               </div>
 
-              <div className="d-flex">
-                <div className="w-100 pe-3">
-                  <label className="py-1">Zip/Postal Code*</label>
-                  <input
-                    type="text"
-                    name="zip"
-                    required
-                    className="form-input bglight"
-                    value={recipientFormData.zip}
-                    onChange={(e) => handleInputChange(e, "recipient")}
+              {/* recipient */}
+
+              <div className="form-group form-group-mobile mx-2 w-100">
+                <h2 className="text-black">
+                  Recipient |{" "}
+                  <FaRegAddressBook
+                    style={{ fontSize: "25px", color: "#0dcaf0" }}
                   />
+                  <span
+                    style={{ cursor: "pointer" }}
+                    onClick={handleShowPopupr}
+                    className="text-info fs-4"
+                  >
+                    Address Book
+                  </span>{" "}
+                </h2>
+                {showPopupr && (
+                  <AddressBookPopupr onClose={handleClosePopupr} />
+                )}
+                <div className="d-flex">
+                  <div className="w-100 pe-3">
+                    <label className="py-1">Name*</label>
+                    <input
+                      type="text"
+                      name="name"
+                      className="form-input bglight"
+                      value={recipientFormData.name}
+                      onChange={(e) => handleInputChange(e, "recipient")}
+                    />
+                  </div>
+
+                  <div className="w-100 ps-2">
+                    <label className="py-1">Company</label>
+                    <input
+                      type="text"
+                      name="company"
+                      className="form-input bglight"
+                      value={recipientFormData.company}
+                      onChange={(e) => handleInputChange(e, "recipient")}
+                    />
+                  </div>
                 </div>
-                <div className="w-100 ps-2">
-                  <label className="py-1">Phone*</label>
-                  <PhoneInput
-                    country={destinationCountry.value.toLowerCase()}
-                    value={rphone}
-                    // className="form-input bglight"
-                    onChange={(e) => setRPhone(e)}
-                  />
-                  {/* <input
+                <label className="py-1">Country*</label>
+                <Select
+                  value={destinationCountry}
+                  onChange={handleDestinationChange}
+                  options={countries}
+                  isSearchable
+                  placeholder="Select country"
+                  formatOptionLabel={({ label, flag }) => (
+                    <div className="d-flex align-items-center gap-3 ">
+                      <div> {flag}</div>
+
+                      {label}
+                    </div>
+                  )}
+                />
+                <label className="py-1">Address 1*</label>
+                <input
+                  type="text"
+                  name="street1"
+                  required
+                  className="form-input bglight"
+                  value={recipientFormData.street1}
+                  onChange={(e) => handleInputChange(e, "recipient")}
+                />
+
+                <label className="py-1">Address 2</label>
+                <input
+                  type="text"
+                  name="street2"
+                  className="form-input"
+                  value={recipientFormData.street2}
+                  onChange={(e) => handleInputChange(e, "recipient")}
+                />
+
+                <div className="d-flex">
+                  <div className="w-100 pe-3">
+                    <label className="py-1">City*</label>
+                    <input
+                      type="text"
+                      name="city"
+                      required
+                      className="form-input bglight"
+                      value={recipientFormData.city}
+                      onChange={(e) => handleInputChange(e, "recipient")}
+                    />
+                  </div>
+
+                  <div className="w-100 ps-2">
+                    <label className="py-1">State/Province*</label>
+                    <input
+                      type="text"
+                      name="state"
+                      className="form-input bglight"
+                      value={recipientFormData.state}
+                      onChange={(e) => handleInputChange(e, "recipient")}
+                    />
+                  </div>
+                </div>
+
+                <div className="d-flex">
+                  <div className="w-100 pe-3">
+                    <label className="py-1">Zip/Postal Code*</label>
+                    <input
+                      type="text"
+                      name="zip"
+                      required
+                      className="form-input bglight"
+                      value={recipientFormData.zip}
+                      onChange={(e) => handleInputChange(e, "recipient")}
+                    />
+                  </div>
+                  <div className="w-100 ps-2">
+                    <label className="py-1">Phone*</label>
+                    <PhoneInput
+                      country={destinationCountry.value.toLowerCase()}
+                      value={rphone}
+                      // className="form-input bglight"
+                      onChange={(e) => setRPhone(e)}
+                    />
+                    {/* <input
                     type="text"
                     name="phone"
                     required
@@ -786,92 +810,95 @@ const OrderForm = () => {
                     value={recipientFormData.phone}
                     onChange={(e) => handleInputChange(e, "recipient")}
                   /> */}
-                </div>
-              </div>
-
-              <label className="py-1">
-                Email*{" "}
-                <span className="text-primary">Copy shipper's email</span>
-              </label>
-              <input
-                type="text"
-                name="email"
-                required
-                placeholder="To recived notificaition"
-                className="form-input bglight"
-                value={recipientFormData.email}
-                onChange={(e) => handleInputChange(e, "recipient")}
-              />
-
-              <div className="d-flex justify-content-between">
-                <div className="py-2">
-                  <div className="d-block">
-                    <div>
-                      <label>
-                        <span className="fw-semibold text-black">TAX ID</span>{" "}
-                        (vat, eori, ioss, pan, etc)
-                      </label>
-                    </div>
-                    <div>
-                      <input
-                        type="text"
-                        name="tax"
-                        placeholder="Vat:123456789"
-                        className=" rounded"
-                        value={recipientFormData.tax}
-                        onChange={(e) => handleInputChange(e, "recipient")}
-                      />
-                    </div>
                   </div>
                 </div>
-                <div className="pt-4 ">
-                  <button
-                    className="rounded bg-warning"
-                    onClick={handleSaveAddressr}
-                  >
-                    Save the Address
-                  </button>
+
+                <label className="py-1">
+                  Email*{" "}
+                  <span className="text-primary">Copy shipper's email</span>
+                </label>
+                <input
+                  type="text"
+                  name="email"
+                  required
+                  placeholder="To recived notificaition"
+                  className="form-input bglight"
+                  value={recipientFormData.email}
+                  onChange={(e) => handleInputChange(e, "recipient")}
+                />
+
+                <div className="d-flex justify-content-between">
+                  <div className="py-2">
+                    <div className="d-block">
+                      <div>
+                        <label>
+                          <span className="fw-semibold text-black">TAX ID</span>{" "}
+                          (vat, eori, ioss, pan, etc)
+                        </label>
+                      </div>
+                      <div>
+                        <input
+                          type="text"
+                          name="tax"
+                          placeholder="Vat:123456789"
+                          className=" rounded"
+                          value={recipientFormData.tax}
+                          onChange={(e) => handleInputChange(e, "recipient")}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="pt-4 ">
+                    <button
+                      className="rounded bg-warning"
+                      onClick={handleSaveAddressr}
+                    >
+                      Save the Address
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div className="d-flex justify-content-end mb-5">
-          <button className="btn btn-success px-5" onClick={handleSubmitForm}>
-            Save & Next
-          </button>
-        </div>
-      </>
-      {currentStep > 1 && (
-        <Package
-          {...{
-            control,
-            handleSubmit,
-            register,
-            fields,
-            append,
-            remove,
-            onSubmit,
-          }}
-        />
-      )}
-      <div
-        className="d-flex justify-content-center align-items-center"
-        style={{ padding: "20px" }}
-      >
-        <button
-          type="submit"
-          className=" btn bg-primary text-white rounded-pill"
-        >
-          {" "}
-          Calculate Shipping Rates
-        </button>
-      </div>
+          <div className="d-flex justify-content-end mb-5">
+            <button className="btn btn-success px-5" onClick={handleSubmitForm}>
+              Save & Next
+            </button>
+          </div>
+        </>
+        {currentStep > 1 && (
+          <>
+            <Package
+              {...{
+                control,
+                handleSubmit,
+                register,
+                fields,
+                append,
+                remove,
+                onSubmit,
+              }}
+            />
+            <div
+              className="d-flex justify-content-center align-items-center"
+              style={{ padding: "20px" }}
+            >
+              <button
+                type="submit"
+                className=" btn bg-primary text-white rounded-pill"
+              >
+                {" "}
+                Calculate Shipping Rates
+              </button>
+            </div>
+          </>
+        )}
+      </form>
       {rate.length > 0 && (
-        <FedexRates {...{ rate, selectedRate, setSelectedRate }} />
+        <FedexRates {...{ rate, selectedRate, setSelectedRate, orderId }} />
       )}
-    </form>
+    </>
   );
 };
 

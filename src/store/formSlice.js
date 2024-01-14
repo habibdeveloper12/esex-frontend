@@ -3,6 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const formSlice = createSlice({
   name: "form",
   initialState: {
+    id: 0,
     currentStep: 1,
     sender: {},
     recipient: {},
@@ -69,10 +70,10 @@ const formSlice = createSlice({
       state.packages.push(action.payload);
     },
     setCustomAddons: (state, action) => {
-      state.items.push(action.payload);
+      state.addons.items = action.payload;
     },
     setAddOns: (state, action) => {
-      state.addOns = action.payload;
+      state.addons = action.payload;
     },
     resetForm: (state) => {
       state.currentStep = 1;
@@ -83,6 +84,9 @@ const formSlice = createSlice({
     },
     setCurrent: (state, action) => {
       state.currentStep = action.payload;
+    },
+    setId: (state, action) => {
+      state.id = action.payload;
     },
     setPackageAddon: (state, action) => {
       state.packages = action.payload;
@@ -103,6 +107,8 @@ export const {
   setAddOns,
   resetForm,
   updateDate,
+  setId,
+  setCustomAddons,
   setPackageAddon,
   setCurrent,
 } = formSlice.actions;
