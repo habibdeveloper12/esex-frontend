@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Select from "react-select";
 import { FaRegAddressBook } from "react-icons/fa";
 import axios from "axios";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useFieldArray, useForm } from "react-hook-form";
+import { usePlacesWidget } from "react-google-autocomplete";
 import auth from "../../firebase.init";
 import { useAuthState } from "react-firebase-hooks/auth";
 import AddressBookPopup from "./AddressBookPopup";
@@ -23,9 +24,10 @@ import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import FedexRates from "./FedexRates";
 import Loading from "../Loading/Loading";
+import Reacthook from "./hookCustom";
 const OrderForm = () => {
   const [user] = useAuthState(auth);
-
+  const inputRef = useRef(null);
   const [countries, setCountries] = useState([]);
   const defaultCountry = { value: "US", label: "United States" };
   const [destinationCountry, setDestinationCountry] = useState(defaultCountry);
@@ -54,6 +56,85 @@ const OrderForm = () => {
     control,
     name: "packages",
   });
+  const [senderFormData, setSenderFormData] = useState({
+    name: "",
+    company: "",
+    street1: "",
+    street2: "",
+    city: "",
+    state: "",
+    zip: "",
+    phone: "",
+    email: "",
+    tax: "",
+    country: defaultCountry.value,
+  });
+
+  const [recipientFormData, setRecipientFormData] = useState({
+    name: "",
+    company: "",
+    street1: "",
+    street2: "",
+    city: "",
+    state: "",
+    zip: "",
+    phone: "",
+    email: "",
+    tax: "",
+    country: defaultCountry.value,
+  });
+  const [selectedPlace, setSelectedPlace] = useState(null);
+  const updateFormData = (formDataSetter, place) => {
+    formDataSetter((prevData) => ({
+      ...prevData,
+      street1:
+        place.address_components?.find((component) =>
+          component.types.includes("administrative_area_level_1")
+        )?.long_name || "",
+      city:
+        place.address_components?.find((component) =>
+          component.types.includes("locality")
+        )?.long_name || "",
+      state:
+        place.address_components?.find((component) =>
+          component.types.includes("administrative_area_level_1")
+        )?.long_name || "",
+      zip:
+        place.address_components?.find((component) =>
+          component.types.includes("postal_code")
+        )?.long_name || "",
+      country:
+        place.address_components?.find((component) =>
+          component.types.includes("country")
+        )?.short_name || "",
+    }));
+  };
+
+  // usePlacesWidget hook provides the ref and autocompleteRef
+  const { ref, autocompleteRef } = usePlacesWidget({
+    apiKey: "AIzaSyASiqsBfc8eoOG5Hkpqty8PglRxxbiRYNU",
+    onPlaceSelected: (place) => {
+      // Handle the selected place data
+
+      updateFormData(setSenderFormData, place);
+
+      // updateFormData(setRecipientFormData, place);
+
+      // Set the selected place data to display if needed
+      setSelectedPlace(place.address_components);
+    },
+  });
+
+  console.log(selectedPlace);
+
+  // ... rest of your code
+
+  console.log(selectedPlace);
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current = ref;
+    }
+  }, [ref]);
 
   const onSubmit = async (data) => {
     const obj = {
@@ -115,33 +196,7 @@ const OrderForm = () => {
       country: selectedOption.value,
     }));
   };
-  const [senderFormData, setSenderFormData] = useState({
-    name: "",
-    company: "",
-    street1: "",
-    street2: "",
-    city: "",
-    state: "",
-    zip: "",
-    phone: "",
-    email: "",
-    tax: "",
-    country: defaultCountry.value,
-  });
 
-  const [recipientFormData, setRecipientFormData] = useState({
-    name: "",
-    company: "",
-    street1: "",
-    street2: "",
-    city: "",
-    state: "",
-    zip: "",
-    phone: "",
-    email: "",
-    tax: "",
-    country: defaultCountry.value,
-  });
   const { currentStep } = useSelector((state) => state.form);
   const dispatch = useDispatch();
   const handleOriginChange = (selectedCountry) => {
@@ -502,6 +557,7 @@ const OrderForm = () => {
     return <Loading />;
   }
   console.log(senderFormData);
+
   return (
     <>
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -571,11 +627,21 @@ const OrderForm = () => {
                 <input
                   type="text"
                   name="street1"
+                  ref={(node) => {
+                    // Attach the ref provided by the usePlacesWidget hook
+                    inputRef.current = node;
+                    ref.current = node;
+                  }}
+                  style={{ width: "90%" }}
+                  placeholder="Start typing an address..."
                   className="form-input bglight"
                   value={senderFormData.street1}
                   onChange={(e) => handleInputChange(e, "sender")}
                 />
-
+                <div
+                  ref={inputRef}
+                  style={{ position: "absolute", zIndex: 100 }}
+                />
                 <label className="py-1">Address 2</label>
                 <input
                   type="text"
