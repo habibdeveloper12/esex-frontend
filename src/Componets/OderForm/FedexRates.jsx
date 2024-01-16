@@ -9,14 +9,18 @@ import Customs from "./Customs";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { updateWallet } from "../../store/slices/walletSlice";
 import { useAuthState } from "react-firebase-hooks/auth";
+import auth from "../../firebase.init";
 const FedexRates = ({ rate, selectedRate, setSelectedRate, orderId }) => {
   const [naviget, setNavigate] = useState(true);
   const [select, setSelect] = useState({});
   const { sender, recipient, addons, id } = useSelector((state) => state.form);
   const wallet = useSelector((state) => state.wallet);
+  const [user] = useAuthState(auth);
+  const navigate = useNavigate();
   function convertDateFormat(apiDate) {
     const options = {
       weekday: "short",
@@ -52,7 +56,7 @@ const FedexRates = ({ rate, selectedRate, setSelectedRate, orderId }) => {
     name: "items",
   });
   console.log(id);
-  const [user] = useAuthState();
+
   const handleAddNewItem = () => {
     append({}); // Add a new empty item to the 'items' array
   };
@@ -86,15 +90,18 @@ const FedexRates = ({ rate, selectedRate, setSelectedRate, orderId }) => {
             orderId: id,
           }
         );
-        const data = await axios.patch(
+        const Wallet = await axios.patch(
           `http://localhost:5001/api/v1/user/wallet`,
           {
-            wallet: selectedRate.rate,
+            wallet: wallet - parseFloat(selectedRate.rate),
             email: user?.email,
           }
         );
         dispatch(updateWallet(wallet - parseFloat(selectedRate.rate)));
-        console.log("Full response:", response);
+        // if (Wallet.data) {
+        //   navigate("/dashboard/orders");
+        // }
+        console.log("Full response:", response, Wallet);
 
         if (
           response.data.success !== undefined &&
@@ -111,7 +118,7 @@ const FedexRates = ({ rate, selectedRate, setSelectedRate, orderId }) => {
         }
       } catch (error) {
         console.error("Error saving address:", error.message);
-        toast.error("An error occurred while saving the address.", {
+        toast.error("An error occurred", {
           position: toast.POSITION.TOP_CENTER,
         });
       }

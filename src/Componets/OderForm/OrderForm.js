@@ -99,14 +99,6 @@ const OrderForm = () => {
         place.address_components?.find((component) =>
           component.types.includes("administrative_area_level_1")
         )?.long_name || "",
-      zip:
-        place.address_components?.find((component) =>
-          component.types.includes("postal_code")
-        )?.long_name || "",
-      country:
-        place.address_components?.find((component) =>
-          component.types.includes("country")
-        )?.short_name || "",
     }));
   };
 
@@ -130,11 +122,6 @@ const OrderForm = () => {
   // ... rest of your code
 
   console.log(selectedPlace);
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current = ref;
-    }
-  }, [ref]);
 
   const onSubmit = async (data) => {
     const obj = {
@@ -153,11 +140,16 @@ const OrderForm = () => {
       const response = await axios.post(
         `http://localhost:5001/api/v1/order/create-rate`,
         {
-          ...obj,
+          sender: senderFormData,
+          recipient: recipientFormData,
+          parcel: data.packages,
         }
       );
-      console.log("Full response:", response.data._id);
-      setRate(response.data.rates);
+      console.log("Full response:", response?.data._id);
+      if (response.data) {
+        console.log(response.data.rates);
+        setRate(response.data.rates);
+      }
 
       setLoading(false);
       if (
@@ -179,7 +171,7 @@ const OrderForm = () => {
     } catch (error) {
       setLoading(false);
       console.error("Error saving address:", error.message);
-      toast.error("An error occurred while saving the address.", {
+      toast.error("An error occurred on address.", {
         position: toast.POSITION.TOP_CENTER,
       });
     }
@@ -321,13 +313,13 @@ const OrderForm = () => {
 
   const handleInputChange = (e, section) => {
     const { name, value } = e.target;
-    if (section === "sender") {
+    if (section == "sender") {
       setSenderFormData({
         ...senderFormData,
         [name]: value,
         phone: phone,
       });
-    } else if (section === "recipient") {
+    } else if (section == "recipient") {
       setRecipientFormData({
         ...recipientFormData,
         [name]: value,
