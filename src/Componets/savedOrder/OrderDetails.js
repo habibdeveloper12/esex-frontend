@@ -21,6 +21,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useAuthState } from "react-firebase-hooks/auth";
 import auth from "../../firebase.init";
+import Map from "./Map";
 const OrderDetails = ({ order }) => {
   const [userNote, setUserNote] = useState("");
   const [csNote, setCsNote] = useState("");
@@ -89,6 +90,26 @@ const OrderDetails = ({ order }) => {
       const response = await axios.patch(
         `http://localhost:5001/api/v1/order/admin-order/${order._id}`,
         { ...data }
+      );
+      console.log("Full response:", response?.data._id);
+      if (response.data) {
+        console.log(response.data);
+      }
+    } catch (error) {
+      console.error("Error saving address:", error.message);
+      toast.error("An error occurred on address.", {
+        position: toast.POSITION.TOP_CENTER,
+      });
+    }
+  };
+  const handleNote = (value) => {
+    setUserNote(value);
+  };
+  const noteAdd = async () => {
+    try {
+      const response = await axios.patch(
+        `http://localhost:5001/api/v1/order/note/${order._id}`,
+        { userNote }
       );
       console.log("Full response:", response?.data._id);
       if (response.data) {
@@ -270,18 +291,12 @@ const OrderDetails = ({ order }) => {
               <p style={{ color: "#005689" }}>View tracking history</p>
             </div>
 
-            <div
-              style={{
-                width: "125px",
-                height: "30px",
-                border: "1px solid grey",
-                display: "inline",
-                borderRadius: "5px",
-              }}
-            >
+            <div>
               <LuPrinter style={{ marginRight: "4px", marginLeft: "5px" }} />
               <span>Print Label</span>
               <MdOutlineArrowDropDown />
+
+              <div>{/* <Map {...{ order }} /> */}</div>
             </div>
           </div>
           {/*This is for big green Line*/}
@@ -303,22 +318,30 @@ const OrderDetails = ({ order }) => {
               {order?.userNote}
               <br />
               <input
-                {...register("userNote")}
+                // {...register("userNote")}
+                onChange={(e) => handleNote(e.target.value)}
                 className="NotesInput"
                 type="text"
                 placeholder=""
               />
+              {userNote && (
+                <button type="button" class="btn" onClick={noteAdd}>
+                  Add
+                </button>
+              )}
             </div>
             <div>
               <label>Admin Note:</label>
               {order?.csNote}
               <br />
-              <input
-                {...register("csNote")}
-                className="NotesInput"
-                type="text"
-                placeholder="csNote"
-              />
+              {role == "cdAdmin" && (
+                <input
+                  {...register("csNote")}
+                  className="NotesInput"
+                  type="text"
+                  placeholder="csNote"
+                />
+              )}
             </div>
           </div>
           {/**this is for Shipment Details box*/}
@@ -428,7 +451,7 @@ const OrderDetails = ({ order }) => {
                   </tr>
                 </thead>
                 <tbody>
-                  {order.addons.items.map((item) => {
+                  {order?.addons?.items?.map((item) => {
                     return (
                       <tr>
                         <td>{item.qty}</td>
@@ -461,7 +484,7 @@ const OrderDetails = ({ order }) => {
             <div className="Total-paid">
               <div>
                 <p>
-                  Shipping Fee : <b>${order.shipment.rate}</b>($2.3/lb)
+                  Shipping Fee : <b>${order?.shipment?.rate}</b>($2.3/lb)
                 </p>
               </div>
               <div>
@@ -472,7 +495,7 @@ const OrderDetails = ({ order }) => {
               <hr />
               <div>
                 <p>
-                  Total Paid :<b>${order.shipment.rate}</b>
+                  Total Paid :<b>${order?.shipment?.rate}</b>
                 </p>
               </div>
             </div>

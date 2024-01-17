@@ -3,13 +3,16 @@ import axios from "axios";
 import { Table, Button, Form } from "react-bootstrap";
 import { FaSearch } from "react-icons/fa";
 import { useAuthState } from "react-firebase-hooks/auth";
-
+import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
+import "react-tabs/style/react-tabs.css";
 import auth from "../firebase.init";
 import OrderForm from "../Componets/OderForm/OrderForm";
 import OrderDetails from "../Componets/savedOrder/OrderDetails";
+import OrderDetailsA from "../Componets/Dashboard/OrderDetails";
 
 const AllOrders = () => {
   const [orders, setOrders] = useState([]);
+  const [shipOrders, setShipOrders] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [showOrderPopup, setShowOrderPopup] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
@@ -37,8 +40,14 @@ const AllOrders = () => {
         );
         console.log(response);
         const ordersData = response.data;
-
-        setOrders(ordersData);
+        const savedfilter = ordersData.filter(
+          (item) => item.orderItem == "Saved"
+        );
+        const shipfilter = ordersData.filter(
+          (item) => item.orderItem != "Saved"
+        );
+        setOrders(savedfilter);
+        setShipOrders(shipfilter);
       } catch (error) {
         console.error("Error fetching orders:", error.message);
       }
@@ -130,57 +139,139 @@ const AllOrders = () => {
           </div>
         </div>
       </div>
-      <Table striped bordered hover>
-        <thead className="bg-success text-white">
-          <tr className="bg-success text-white">
-            <th className="bg-success text-white">Order Date</th>
-            <th className="bg-success text-white">Order ID</th>
-            <th className="bg-success text-white">To</th>
-            <th className="bg-success text-white ps-5">Service</th>
-            <th className="bg-success text-white">Paid</th>
-            <th className="bg-success text-white">Tracking #</th>
-            <th className="bg-success text-white">Delivery Status</th>
-            <th className="bg-success text-white">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {orders.map((order) => (
-            <>
-              {showOrderPopup && (
-                <div className="popup-container">
-                  <div className="popup">
-                    <span className="close" onClick={handleOrderClosePopup}>
-                      &times;
-                    </span>
-                    <h2 className="py-4 text-success"></h2>
-                    <OrderDetails {...{ order, date: orders.createdAt }} />
-                  </div>
-                </div>
-              )}
-              <tr key={order.orderId}>
-                <td className="bg-success">{formatDate(order.createdAt)}</td>
-                <td className="bg-success">{order.orderId}</td>
-                <td className="bg-success">
-                  {order.recipient.country} {order.recipient.zip}
-                </td>
-                <td className="bg-success">{order?.shipment?.service}</td>
-                <td className="bg-success">{order.paid ? "Yes" : "No"}</td>
-                <td className="bg-success">{order.trackingNumber}</td>
-                <td className="bg-success">{"Pending"}</td>
-                <td className="bg-success">
-                  <button
-                    type="button"
-                    class="btn btn-primary"
-                    onClick={handleOrderShowPopup}
-                  >
-                    view
-                  </button>
-                </td>
+      <Tabs>
+        <TabList>
+          <Tab>Saved</Tab>
+          <Tab>Shipped</Tab>
+        </TabList>
+
+        <TabPanel>
+          <Table striped bordered hover>
+            <thead className="bg-success text-white">
+              <tr className="bg-success text-white">
+                <th className="bg-success text-white">Order Date</th>
+                <th className="bg-success text-white">Order ID</th>
+                <th className="bg-success text-white">To</th>
+                <th className="bg-success text-white ps-5">Service</th>
+                <th className="bg-success text-white">Paid</th>
+                <th className="bg-success text-white">Tracking #</th>
+                <th className="bg-success text-white">Delivery Status</th>
+                <th className="bg-success text-white">Action</th>
               </tr>
-            </>
-          ))}
-        </tbody>
-      </Table>
+            </thead>
+            <tbody>
+              {orders.map((order) => {
+                console.log(order);
+                return (
+                  <>
+                    {showOrderPopup && (
+                      <div className="popup-container">
+                        <div className="popup">
+                          <span
+                            className="close"
+                            onClick={handleOrderClosePopup}
+                          >
+                            &times;
+                          </span>
+                          <h2 className="py-4 text-success"></h2>
+                          <OrderDetailsA {...{ order }} />
+                        </div>
+                      </div>
+                    )}
+                    <tr key={order.orderId}>
+                      <td className="bg-success">
+                        {formatDate(order.createdAt)}
+                      </td>
+                      <td className="bg-success">{order.orderId}</td>
+                      <td className="bg-success">
+                        {order.recipient.country} {order.recipient.zip}
+                      </td>
+                      <td className="bg-success">{order?.shipment?.service}</td>
+                      <td className="bg-success">
+                        {order.paid ? "Yes" : "No"}
+                      </td>
+                      <td className="bg-success">{order.trackingNumber}</td>
+                      <td className="bg-success">{"Pending"}</td>
+                      <td className="bg-success">
+                        <button
+                          type="button"
+                          class="btn btn-primary"
+                          onClick={handleOrderShowPopup}
+                        >
+                          view
+                        </button>
+                      </td>
+                    </tr>
+                  </>
+                );
+              })}
+            </tbody>
+          </Table>
+        </TabPanel>
+        <TabPanel>
+          <Table striped bordered hover>
+            <thead className="bg-success text-white">
+              <tr className="bg-success text-white">
+                <th className="bg-success text-white">Order Date</th>
+                <th className="bg-success text-white">Order ID</th>
+                <th className="bg-success text-white">To</th>
+                <th className="bg-success text-white ps-5">Service</th>
+                <th className="bg-success text-white">Paid</th>
+                <th className="bg-success text-white">Tracking #</th>
+                <th className="bg-success text-white">Delivery Status</th>
+                <th className="bg-success text-white">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {shipOrders.map((order) => {
+                console.log(order);
+                return (
+                  <>
+                    {showOrderPopup && (
+                      <div className="popup-container">
+                        <div className="popup">
+                          <span
+                            className="close"
+                            onClick={handleOrderClosePopup}
+                          >
+                            &times;
+                          </span>
+                          <h2 className="py-4 text-success"></h2>
+                          <OrderDetails {...{ order, date: order.createdAt }} />
+                        </div>
+                      </div>
+                    )}
+                    <tr key={order.orderId}>
+                      <td className="bg-success">
+                        {formatDate(order.createdAt)}
+                      </td>
+                      <td className="bg-success">{order.orderId}</td>
+                      <td className="bg-success">
+                        {order.recipient.country} {order.recipient.zip}
+                      </td>
+                      <td className="bg-success">{order?.shipment?.service}</td>
+                      <td className="bg-success">
+                        {order.paid ? "Yes" : "No"}
+                      </td>
+                      <td className="bg-success">{order.trackingNumber}</td>
+                      <td className="bg-success">{"Pending"}</td>
+                      <td className="bg-success">
+                        <button
+                          type="button"
+                          class="btn btn-primary"
+                          onClick={handleOrderShowPopup}
+                        >
+                          view
+                        </button>
+                      </td>
+                    </tr>
+                  </>
+                );
+              })}
+            </tbody>
+          </Table>
+        </TabPanel>
+      </Tabs>
     </div>
   );
 };

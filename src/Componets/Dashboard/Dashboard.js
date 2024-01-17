@@ -134,12 +134,20 @@ const Dashboard = () => {
               </>
             )}
             {
-              <Link
-                to="allOrder"
-                className="list-group-item list-group-item-action bg-transparent second-text fw-bold"
-              >
-                <i className="fas fa-paperclip me-2"></i>All Order
-              </Link>
+              <>
+                <Link
+                  to="allOrder"
+                  className="list-group-item list-group-item-action bg-transparent second-text fw-bold"
+                >
+                  <i className="fas fa-paperclip me-2"></i>All Order
+                </Link>
+                <Link
+                  to="allusers"
+                  className="list-group-item list-group-item-action bg-transparent second-text fw-bold"
+                >
+                  <i className="fas fa-paperclip me-2"></i>All User
+                </Link>
+              </>
             }
             <span
               href="#"

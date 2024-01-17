@@ -25,6 +25,7 @@ import Order from "./Componets/Dashboard/Order";
 import MyProfile from "./Componets/Dashboard/MyProfile";
 import OrderShip from "./Componets/Dashboard/OrderShip";
 import AllOrders from "./admin/AllOrders";
+import AllUser from "./admin/AllUser";
 
 function App() {
   const user = useAuthState(auth);
@@ -55,6 +56,7 @@ function App() {
             />
             <Route path="/dashboard/order" element={<Order />} />
             <Route path="/dashboard/allOrder" element={<AllOrders />} />
+            <Route path="/dashboard/allusers" element={<AllUser />} />
             <Route path="/dashboard/order/saved" element={<Order />} />
             <Route path="/dashboard/order/shipping" element={<OrderShip />} />
             <Route path="/dashboard/balance" element={<WalletBalance />} />
