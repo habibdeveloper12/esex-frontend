@@ -104,8 +104,8 @@ const DashboardDetail = () => {
             color="warning"
           />
         </Row>
-        <Chartas />
       </main>
+      <Chartas />
     </div>
   );
 };
