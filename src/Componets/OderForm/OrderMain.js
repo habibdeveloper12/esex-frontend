@@ -1,6 +1,7 @@
 import { useFieldArray, useForm } from "react-hook-form";
 import { default as OrderForm } from "./OrderForm";
 import { default as Package } from "./Package";
+import { useSelector } from "react-redux";
 
 const OrderMain = () => {
   const { control, handleSubmit, register } = useForm({
@@ -10,6 +11,7 @@ const OrderMain = () => {
       ],
     },
   });
+  const { currentStep } = useSelector((state) => state.form);
   const { fields, append, remove } = useFieldArray({
     control,
     name: "packages",

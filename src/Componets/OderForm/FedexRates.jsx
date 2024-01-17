@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import photos from "../../Assets";
 import { FaSortAmountDown } from "react-icons/fa";
 import { MdKeyboardArrowRight, MdDeleteForever } from "react-icons/md";

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { ImCross } from "react-icons/im";
 import { FaRegCircle } from "react-icons/fa";
 import { GoPlusCircle } from "react-icons/go";
@@ -15,17 +15,56 @@ import { HiPlusCircle } from "react-icons/hi";
 import { FaMinusCircle } from "react-icons/fa";
 import { IoLocationSharp } from "react-icons/io5";
 import TimeLine from "./timelineChild";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useFieldArray, useForm } from "react-hook-form";
 import GoogleSheet from "./GoogleSheet";
+import axios from "axios";
+import { toast } from "react-toastify";
+import { useAuthState } from "react-firebase-hooks/auth";
+import auth from "../../firebase.init";
 const OrderDetails = ({ order }) => {
   const [userNote, setUserNote] = useState("");
   const [csNote, setCsNote] = useState("");
+  const [user] = useAuthState(auth);
+  const [users, setUsers] = useState({});
+  const [role, setRole] = useState("");
   const [open, setOpen] = useState(false);
   const [open2, setopen2] = useState(false);
-  const { handleSubmit, register, control } = useForm();
+  console.log(order);
+  const { handleSubmit, register, control } = useForm({
+    defaultValues: {
+      customD: [
+        {
+          description: "",
+          qty: 0,
+          value: 0,
+          totalValue: 0,
+          hsV: 0,
+          country: "United States",
+        },
+      ],
+    },
+  });
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:5001/api/v1/user/peruser?email=${user?.email}`
+        );
+        setUsers(response.data);
+        setRole(response.data.role);
+      } catch (error) {
+        console.error("Error saving address:", error.message);
+        toast.error("An error occurred", {
+          position: toast.POSITION.TOP_CENTER,
+        });
+      }
+    };
+    fetchUser();
+  }, []);
+  console.log(users, role);
   function formatDate(originalDate) {
     const date = new Date(originalDate);
-
+    console.log(order.orderId);
     const options = {
       weekday: "short",
       year: "numeric",
@@ -38,9 +77,29 @@ const OrderDetails = ({ order }) => {
 
     return new Intl.DateTimeFormat("en-US", options).format(date);
   }
-  const onSubmit = (data) => {
-    console.log(csNote, userNote);
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "customD",
+  });
+  const onSubmit = async (data) => {
     console.log(data);
+    try {
+      // setLoading(true);
+
+      const response = await axios.patch(
+        `http://localhost:5001/api/v1/order/admin-order/${order._id}`,
+        { ...data }
+      );
+      console.log("Full response:", response?.data._id);
+      if (response.data) {
+        console.log(response.data);
+      }
+    } catch (error) {
+      console.error("Error saving address:", error.message);
+      toast.error("An error occurred on address.", {
+        position: toast.POSITION.TOP_CENTER,
+      });
+    }
   };
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -99,12 +158,13 @@ const OrderDetails = ({ order }) => {
                         />
                       )}
                     </p>
+
                     {open && (
                       <div style={{ lineHeight: "3px" }}>
                         <p style={{ color: "brown" }}>
                           Company: {order.sender.company}
                         </p>
-                        <p style={{ color: "brown" }}>
+                        <p style={{ color: "brown", lineHeight: "18px" }}>
                           Address: {order.sender.street1} {order.sender.state}{" "}
                           {order.sender.zip}
                         </p>
@@ -185,9 +245,25 @@ const OrderDetails = ({ order }) => {
             </div>
 
             <div>
-              90008973248749 <MdContentCopy />
+              {role == "admin" && (
+                <input
+                  {...register("transactionId")}
+                  className="NotesInput"
+                  type="text"
+                  placeholder=""
+                />
+              )}
+              {order?.transactionId} <MdContentCopy />
               <h6 style={{ marginTop: "7px" }}>Current Status:</h6>
               <small style={{ color: "#8bffff", marginTop: "5px" }}>
+                {role == "admin" && (
+                  <input
+                    {...register("deliveryStatus")}
+                    className="NotesInput"
+                    type="text"
+                    placeholder=""
+                  />
+                )}
                 Main Status : {order?.deliveryStatus}
               </small>
               <p style={{ color: "grey" }}>Detailed Status(if has)</p>
@@ -209,8 +285,16 @@ const OrderDetails = ({ order }) => {
             </div>
           </div>
           {/*This is for big green Line*/}
+          {role == "admin" && (
+            <select {...register(`transitStatus`)} style={{ width: "20%" }}>
+              <option defaultChecked>out-transit</option>
+              <option>in-transit</option>
+              <option>out-delivery</option>
+              <option>delivered</option>
+            </select>
+          )}
 
-          <TimeLine />
+          <TimeLine {...{ order }} />
 
           {/**This is for User Notes*/}
           <div className="Notes">
@@ -219,10 +303,10 @@ const OrderDetails = ({ order }) => {
               {order?.userNote}
               <br />
               <input
-                onChange={(e) => setUserNote(e.target.value)}
+                {...register("userNote")}
                 className="NotesInput"
                 type="text"
-                placeholder="You can add your internal notes for this order"
+                placeholder=""
               />
             </div>
             <div>
@@ -230,10 +314,10 @@ const OrderDetails = ({ order }) => {
               {order?.csNote}
               <br />
               <input
-                onChange={(e) => setCsNote(e.target.value)}
+                {...register("csNote")}
                 className="NotesInput"
                 type="text"
-                placeholder="Admin and CS team notes"
+                placeholder="csNote"
               />
             </div>
           </div>
@@ -270,7 +354,9 @@ const OrderDetails = ({ order }) => {
                   </div>
                   <div>
                     <h6>Master Tracking #:</h6>
-                    <p style={{ backgroundColor: "aqua" }}>7020200202</p>
+                    <p style={{ backgroundColor: "aqua" }}>
+                      {order?.masterTracking}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -330,29 +416,29 @@ const OrderDetails = ({ order }) => {
                   }}
                 >
                   <tr>
-                    <th style={{ borderRight: "2px solid white" }}>Package</th>
+                    <th style={{ borderRight: "2px solid white" }}>
+                      Package Qty
+                    </th>
                     <th style={{ borderRight: "2px solid white" }}>
                       Physicla Weight
                     </th>
-                    <th style={{ borderRight: "2px solid white" }}>
-                      Dimentions
-                    </th>
-                    <th style={{ borderRight: "2px solid white" }}>
-                      Dim Factor &#10068;
-                    </th>
-                    <th style={{ borderRight: "2px solid white" }}>
-                      Billed Weight ght &#10068;
-                    </th>
+                    <th style={{ borderRight: "2px solid white" }}>width</th>
+                    <th style={{ borderRight: "2px solid white" }}>height</th>
+                    <th style={{ borderRight: "2px solid white" }}>Length</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td>#1</td>
-                    <td>3.5 lb</td>
-                    <td>2 × 7 × 8 (inch)</td>
-                    <td>166</td>
-                    <td>4 lb</td>
-                  </tr>
+                  {order.addons.items.map((item) => {
+                    return (
+                      <tr>
+                        <td>{item.qty}</td>
+                        <td>{item.weight} lb</td>
+                        <td>{item.width}</td>
+                        <td>{item.height}</td>
+                        <td>{item.length}</td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
               <hr />
@@ -375,7 +461,7 @@ const OrderDetails = ({ order }) => {
             <div className="Total-paid">
               <div>
                 <p>
-                  Shipping Fee : <b>$38.6</b>($2.3/lb)
+                  Shipping Fee : <b>${order.shipment.rate}</b>($2.3/lb)
                 </p>
               </div>
               <div>
@@ -386,7 +472,7 @@ const OrderDetails = ({ order }) => {
               <hr />
               <div>
                 <p>
-                  Total Paid :<b>$40.6</b>
+                  Total Paid :<b>${order.shipment.rate}</b>
                 </p>
               </div>
             </div>
@@ -412,351 +498,399 @@ const OrderDetails = ({ order }) => {
               </p>
             </div>
             {/*This is for based on carrier's data*/}
-            <div className="based-oncarrier">
-              <h6 style={{ fontSize: "20px" }}>Based on carrier's data:</h6>
-              <div className="based-child">
-                <div>
-                  <p style={{ gap: "15px", display: "inline" }}>
-                    Final Physical Weight(lb):{" "}
-                  </p>
-                  <Controller
-                    name="finalPhysicalWeight"
-                    control={control}
-                    defaultValue=""
-                    render={({ field }) => (
+            <div>
+              {role == "admin" && (
+                <>
+                  <div className="based-oncarrier">
+                    <h6 style={{ fontSize: "20px" }}>
+                      Based on carrier's data:
+                    </h6>
+                    <div className="based-child">
+                      <div>
+                        <p style={{ gap: "15px", display: "inline" }}>
+                          Final Physical Weight(lb):{" "}
+                        </p>
+                        {order?.fpWeight}
+                        <Controller
+                          name="fpWeight"
+                          control={control}
+                          defaultValue=""
+                          render={({ field }) => (
+                            <input
+                              {...field}
+                              type="text"
+                              style={{
+                                width: "130px",
+                                height: "25px",
+                                borderRadius: "5px",
+                              }}
+                            />
+                          )}
+                        />
+                        <button
+                          className="btnalvi"
+                          type="button"
+                          onClick={() => console.log("Edit")}
+                        >
+                          Edit
+                        </button>
+                        <br />
+                        <p style={{ gap: "15px", display: "inline" }}>
+                          Final Billed Weight(lb):{" "}
+                        </p>
+                        {order?.fbWeight}
+                        <Controller
+                          name="fbWeight"
+                          control={control}
+                          defaultValue=""
+                          render={({ field }) => (
+                            <input
+                              {...field}
+                              type="text"
+                              style={{
+                                width: "130px",
+                                height: "25px",
+                                borderRadius: "5px",
+                              }}
+                            />
+                          )}
+                        />
+                        <button
+                          className="btnalvi"
+                          type="button"
+                          onClick={() => console.log("Edit by admin")}
+                        >
+                          Edit by admin
+                        </button>
+                      </div>
+                      <div>
+                        <p style={{ gap: "15px", display: "inline" }}>
+                          Accurate Shipping Fee:{" "}
+                        </p>
+                        {order?.afee}
+                        <Controller
+                          name="afee"
+                          control={control}
+                          defaultValue=""
+                          render={({ field }) => (
+                            <input
+                              {...field}
+                              type="text"
+                              style={{
+                                width: "130px",
+                                height: "25px",
+                                borderRadius: "5px",
+                              }}
+                            />
+                          )}
+                        />
+                        <button
+                          className="btnalvi"
+                          type="button"
+                          onClick={() => console.log("Edit")}
+                        >
+                          Edit
+                        </button>
+                        <br />
+                        <p style={{ gap: "15px", display: "inline" }}>
+                          Adjustment:{" "}
+                        </p>
+                        {order?.adjustment}
+                        <Controller
+                          name="adjustment"
+                          control={control}
+                          defaultValue=""
+                          render={({ field }) => (
+                            <input
+                              {...field}
+                              type="text"
+                              style={{
+                                width: "130px",
+                                height: "25px",
+                                borderRadius: "5px",
+                              }}
+                            />
+                          )}
+                        />
+                        <button
+                          className="btnalvi"
+                          type="button"
+                          onClick={() => console.log("Edit by admin")}
+                        >
+                          Edit by admin
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  {/*Admin Note*/}
+                  <div style={{ marginTop: "20px" }}>
+                    {role == "csadmin" && (
                       <input
-                        {...field}
                         type="text"
                         style={{
-                          width: "130px",
-                          height: "25px",
+                          width: "80%",
+                          height: "40px",
                           borderRadius: "5px",
                         }}
+                        placeholder="Admin Note"
                       />
                     )}
-                  />
-                  <button
-                    className="btnalvi"
-                    type="button"
-                    onClick={() => console.log("Edit")}
-                  >
-                    Edit
-                  </button>
-                  <br />
-                  <p style={{ gap: "15px", display: "inline" }}>
-                    Final Billed Weight(lb):{" "}
-                  </p>
-                  <Controller
-                    name="finalBilledWeight"
-                    control={control}
-                    defaultValue=""
-                    render={({ field }) => (
+                    {order?.adminNote}
+                  </div>
+
+                  <div className="custome-head">
+                    <div className="CHead">
+                      <h6>Customs Declaration</h6>
+                    </div>
+                    <div className="custome-head-flex">
+                      <div className="cu1st">
+                        <b>Description</b>
+                        <input
+                          type="text"
+                          className="Cuinput"
+                          style={{ borderRadius: "5px", height: "30px" }}
+                        />
+                      </div>
+                      <div className="cu2nd">
+                        <b>Qty</b>
+                        <input
+                          type="number"
+                          className="Cuinput"
+                          style={{ borderRadius: "5px", height: "30px" }}
+                        />
+                      </div>
+                      <div className="cu3nd"></div>
+                      <b>
+                        Value<small>(each)</small>
+                      </b>
                       <input
-                        {...field}
-                        type="text"
-                        style={{
-                          width: "130px",
-                          height: "25px",
-                          borderRadius: "5px",
-                        }}
+                        type="number"
+                        className="Cuinput"
+                        style={{ borderRadius: "5px", height: "30px" }}
                       />
-                    )}
-                  />
-                  <button
-                    className="btnalvi"
-                    type="button"
-                    onClick={() => console.log("Edit by admin")}
-                  >
-                    Edit by admin
-                  </button>
-                </div>
-                <div>
-                  <p style={{ gap: "15px", display: "inline" }}>
-                    Accurate Shipping Fee:{" "}
-                  </p>
-                  <Controller
-                    name="accurateShippingFee"
-                    control={control}
-                    defaultValue=""
-                    render={({ field }) => (
+                      <div className="cu4nd"></div>
+                      <b>Total value</b>
                       <input
-                        {...field}
-                        type="text"
-                        style={{
-                          width: "130px",
-                          height: "25px",
-                          borderRadius: "5px",
-                        }}
+                        type="number"
+                        className="Cuinput"
+                        style={{ borderRadius: "5px", height: "30px" }}
                       />
-                    )}
-                  />
-                  <button
-                    className="btnalvi"
-                    type="button"
-                    onClick={() => console.log("Edit")}
-                  >
-                    Edit
+                      <div className="cu5nd">
+                        <b>HS Code</b>
+                        <input
+                          type="number"
+                          className="Cuinput"
+                          style={{ borderRadius: "5px", height: "30px" }}
+                        />
+                      </div>
+                      <div className="cu6nd">
+                        <b>Country of Origin</b>
+                        <select
+                          className="Cuinput"
+                          style={{ borderRadius: "5px", height: "30px" }}
+                        >
+                          <option>United state</option>
+                          <option>Bangladesh</option>
+                        </select>
+                      </div>
+                    </div>
+                    {/*Customs Declaration table*/}
+
+                    <table className="custome-table">
+                      <thead style={{ backgroundColor: " #acdcee" }}>
+                        <tr>
+                          <th>Description</th>
+                          <th>Qty</th>
+                          <th>
+                            Value<small>(each)</small>
+                          </th>
+                          <th>Total value</th>
+                          <th>HS Code</th>
+                          <th>Country of Origin</th>
+                          <th>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {fields.map((field, index) => (
+                          <tr key={field.id}>
+                            <td>
+                              <Controller
+                                name={`customD[${index}].description`}
+                                control={control}
+                                defaultValue={field.description}
+                                render={({ field }) => (
+                                  <input
+                                    {...field}
+                                    type="text"
+                                    style={{ height: "30px", width: "100%" }}
+                                  />
+                                )}
+                              />
+                            </td>
+                            <td>
+                              <Controller
+                                name={`customD[${index}].qty`}
+                                control={control}
+                                defaultValue={field.qty}
+                                render={({ field }) => (
+                                  <input
+                                    {...field}
+                                    type="number"
+                                    style={{ height: "30px", width: "100%" }}
+                                  />
+                                )}
+                              />
+                            </td>
+                            <td>
+                              <Controller
+                                name={`customD[${index}].value`}
+                                control={control}
+                                defaultValue={field.qty}
+                                render={({ field }) => (
+                                  <input
+                                    {...field}
+                                    type="number"
+                                    style={{ height: "30px", width: "100%" }}
+                                  />
+                                )}
+                              />
+                            </td>
+                            <td>
+                              <Controller
+                                name={`customD[${index}].totalValue`}
+                                control={control}
+                                defaultValue={field.qty}
+                                render={({ field }) => (
+                                  <input
+                                    {...field}
+                                    type="number"
+                                    style={{ height: "30px", width: "100%" }}
+                                  />
+                                )}
+                              />
+                            </td>
+                            <td>
+                              <Controller
+                                name={`customD[${index}].hsV`}
+                                control={control}
+                                defaultValue={field.qty}
+                                render={({ field }) => (
+                                  <input
+                                    {...field}
+                                    type="number"
+                                    style={{ height: "30px", width: "100%" }}
+                                  />
+                                )}
+                              />
+                            </td>
+                            <td>
+                              <Controller
+                                name={`customD[${index}].country`}
+                                control={control}
+                                defaultValue={field.qty}
+                                render={({ field }) => (
+                                  <input
+                                    {...field}
+                                    type="text"
+                                    style={{ height: "30px", width: "100%" }}
+                                  />
+                                )}
+                              />
+                            </td>
+                            {/* Repeat the same pattern for other columns */}
+                            <td>
+                              <button
+                                type="button"
+                                onClick={() => remove(index)}
+                              >
+                                Remove
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                        {order?.customD.map((item) => {
+                          return (
+                            <>
+                              {" "}
+                              <tr>
+                                <td>
+                                  <p>{item.description}</p>
+                                </td>
+                                <td>
+                                  <p>{item.qty}</p>
+                                </td>
+                                <td>
+                                  <p>{item.value}</p>
+                                </td>
+                                <td>
+                                  <p>{item.totalValue}</p>
+                                </td>
+                                <td>
+                                  <p>{item.hsV}</p>
+                                </td>
+                                <td>
+                                  <p>{item.country}</p>
+                                </td>
+                              </tr>
+                            </>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                    <button type="button" onClick={() => append()}>
+                      ADD
+                    </button>
+                    <div className="custom-footer">
+                      <p>
+                        Total Units: <b>10</b>
+                      </p>
+                      <p>
+                        Total Value: <b>$120</b>
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="duty-main">
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        border: "2px solid black",
+                        width: "120px",
+                        height: "30px",
+                      }}
+                    >
+                      <h6>Duty & Taxes</h6>
+                    </div>
+                    <hr />
+                    <div className="duty_paragraph">
+                      <div>
+                        <h6>Duty & Taxes by:</h6>
+                        <p>
+                          Recipient EasyEx(EasyEx won't know the exact amount if
+                          paid by the receipient)
+                        </p>
+                      </div>
+                      <div>
+                        <h6>Amount:</h6>
+                        <p>
+                          $2.28 (Duty & Taxes fee will be posted to Customer's
+                          balance upon receiving the carrier's invoice)
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <hr />
+                  <GoogleSheet />
+                  <button className="btn btn-primary " type="submit">
+                    Save
                   </button>
-                  <br />
-                  <p style={{ gap: "15px", display: "inline" }}>Adjustment: </p>
-                  <Controller
-                    name="adjustment"
-                    control={control}
-                    defaultValue=""
-                    render={({ field }) => (
-                      <input
-                        {...field}
-                        type="text"
-                        style={{
-                          width: "130px",
-                          height: "25px",
-                          borderRadius: "5px",
-                        }}
-                      />
-                    )}
-                  />
-                  <button
-                    className="btnalvi"
-                    type="button"
-                    onClick={() => console.log("Edit by admin")}
-                  >
-                    Edit by admin
-                  </button>
-                </div>
-              </div>
-            </div>
-            {/*Admin Note*/}
-            <div style={{ marginTop: "20px" }}>
-              <input
-                type="text"
-                style={{ width: "80%", height: "40px", borderRadius: "5px" }}
-                placeholder="Admin Note"
-              />
-            </div>
-
-            <div className="custome-head">
-              <div className="CHead">
-                <h6>Customs Declaration</h6>
-              </div>
-              <div className="custome-head-flex">
-                <div className="cu1st">
-                  <b>Description</b>
-                  <input
-                    type="text"
-                    className="Cuinput"
-                    style={{ borderRadius: "5px", height: "30px" }}
-                  />
-                </div>
-                <div className="cu2nd">
-                  <b>Qty</b>
-                  <input
-                    type="number"
-                    className="Cuinput"
-                    style={{ borderRadius: "5px", height: "30px" }}
-                  />
-                </div>
-                <div className="cu3nd"></div>
-                <b>
-                  Value<small>(each)</small>
-                </b>
-                <input
-                  type="number"
-                  className="Cuinput"
-                  style={{ borderRadius: "5px", height: "30px" }}
-                />
-                <div className="cu4nd"></div>
-                <b>Total value</b>
-                <input
-                  type="number"
-                  className="Cuinput"
-                  style={{ borderRadius: "5px", height: "30px" }}
-                />
-                <div className="cu5nd">
-                  <b>HS Code</b>
-                  <input
-                    type="number"
-                    className="Cuinput"
-                    style={{ borderRadius: "5px", height: "30px" }}
-                  />
-                </div>
-                <div className="cu6nd">
-                  <b>Country of Origin</b>
-                  <select
-                    className="Cuinput"
-                    style={{ borderRadius: "5px", height: "30px" }}
-                  >
-                    <option>United state</option>
-                    <option>Bangladesh</option>
-                  </select>
-                </div>
-              </div>
-              {/*Customs Declaration table*/}
-
-              <table className="custome-table">
-                <thead style={{ backgroundColor: " #acdcee" }}>
-                  <tr>
-                    <th>Description</th>
-                    <th>Qty</th>
-                    <th>
-                      Value<small>(each)</small>
-                    </th>
-                    <th>Total value</th>
-                    <th>HS Code</th>
-                    <th>Country of Origin</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>
-                      <Controller
-                        name="description"
-                        control={control}
-                        defaultValue=""
-                        render={({ field }) => (
-                          <input
-                            {...field}
-                            type="text"
-                            style={{ height: "30px", width: "100%" }}
-                          />
-                        )}
-                      />
-                    </td>
-                    <td>
-                      <Controller
-                        name="qty"
-                        control={control}
-                        defaultValue={0}
-                        render={({ field }) => (
-                          <input
-                            {...field}
-                            type="number"
-                            style={{ height: "30px", width: "100%" }}
-                          />
-                        )}
-                      />
-                    </td>
-                    <td>
-                      <Controller
-                        name="value"
-                        control={control}
-                        defaultValue={0}
-                        render={({ field }) => (
-                          <input
-                            {...field}
-                            type="number"
-                            style={{ height: "30px", width: "100%" }}
-                          />
-                        )}
-                      />
-                    </td>
-                    <td>
-                      <Controller
-                        name="totalValue"
-                        control={control}
-                        defaultValue={0}
-                        render={({ field }) => (
-                          <input
-                            {...field}
-                            type="number"
-                            style={{ height: "30px", width: "100%" }}
-                          />
-                        )}
-                      />
-                    </td>
-                    <td>
-                      <Controller
-                        name="hsCode"
-                        control={control}
-                        defaultValue={0}
-                        render={({ field }) => (
-                          <input
-                            {...field}
-                            type="number"
-                            style={{ height: "30px", width: "100%" }}
-                          />
-                        )}
-                      />
-                    </td>
-                    <td>
-                      <Controller
-                        name="countryOfOrigin"
-                        control={control}
-                        defaultValue="United States"
-                        render={({ field }) => (
-                          <select
-                            {...field}
-                            style={{ height: "30px", width: "100%" }}
-                          >
-                            <option value="United States">United States</option>
-                            <option value="Bangladesh">Bangladesh</option>
-                          </select>
-                        )}
-                      />
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-
-              <div className="custom-footer">
-                <p>
-                  Total Units: <b>10</b>
-                </p>
-                <p>
-                  Total Value: <b>$120</b>
-                </p>
-              </div>
-            </div>
-
-            <div className="duty-main">
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  border: "2px solid black",
-                  width: "120px",
-                  height: "30px",
-                }}
-              >
-                <h6>Duty & Taxes</h6>
-              </div>
-              <hr />
-              <div className="duty_paragraph">
-                <div>
-                  <h6>Duty & Taxes by:</h6>
-                  <p>
-                    Recipient EasyEx(EasyEx won't know the exact amount if paid
-                    by the receipient)
-                  </p>
-                </div>
-                <div>
-                  <h6>Amount:</h6>
-                  <p>
-                    $2.28 (Duty & Taxes fee will be posted to Customer's balance
-                    upon receiving the carrier's invoice)
-                  </p>
-                </div>
-              </div>
-            </div>
-            <hr />
-            <GoogleSheet />
-            <div className="des123">
-              <div>
-                <p>Description 1:</p>
-                <p>Description 2:</p>
-                <p>Description 3:</p>
-              </div>
-              <div>
-                <p>Charge Amount:</p>
-                <p>Charge Amount:</p>
-                <p>Charge Amount:</p>
-              </div>
+                </>
+              )}
             </div>
           </div>
         </div>
-        <button className="btn btn-primary " type="submit">
-          Save
-        </button>
       </div>
     </form>
   );
