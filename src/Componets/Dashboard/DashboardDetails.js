@@ -7,6 +7,7 @@ import {
   FaCheck,
   FaExclamationCircle,
 } from "react-icons/fa"; // Import icons
+import Chartas from "./chart/Chartas";
 
 const DashboardDetail = () => {
   const [savedOrders, setSavedOrders] = useState([]);
@@ -103,6 +104,7 @@ const DashboardDetail = () => {
             color="warning"
           />
         </Row>
+        <Chartas />
       </main>
     </div>
   );
